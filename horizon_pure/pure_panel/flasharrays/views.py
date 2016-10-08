@@ -13,26 +13,26 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.utils.translation import ugettext_lazy as _
 
-from horizon import exceptions
+from django.core.urlresolvers import reverse
+
 from horizon import tabs
 
-from horizon_pure.api import pure_flash_array
-from horizon_pure.pure_panel import tabs as pure_tabs
+from horizon_pure.pure_panel.flasharrays import tabs as flasharray_tabs
 
 
-class IndexView(tabs.TabbedTableView):
-    template_name = 'pure_panel/index.html'
-    tab_group_class = pure_tabs.PurePanelTabs
-    page_title = "Pure Storage"
+class DetailView(tabs.TabView):
+    tab_group_class = flasharray_tabs.FlashArrayDetailTabs
+    template_name = 'horizon/common/_detail.html'
+    page_title = "{{ backend.name }}"
 
     def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
-        try:
-            array_api = pure_flash_array.FlashArrayAPI()
-            context["stats"] = array_api.get_total_stats()
-        except Exception:
-            exceptions.handle(self.request,
-                              _('Unable to retrieve Flash Array statistics.'))
+        context = super(DetailView, self).get_context_data(**kwargs)
+        context['backend_id'] = self.get_data()
         return context
+
+    def get_redirect_url(self):
+        return reverse('horizon:admin:pure_panel:index')
+
+    def get_data(self):
+        return self.kwargs['backend_id']

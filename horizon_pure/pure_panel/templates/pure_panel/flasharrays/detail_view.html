@@ -1,0 +1,99 @@
+{% load i18n humanize sizeformat parse_date %}
+
+<div class="detail">
+  <div class="quota-dynamic">
+  <h4>{% trans "Overview" %}</h4>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio array.total_used array.total_available 100 %}"></div>
+      <div class="h5">{% trans "Capacity Usage" %}</div>
+      <div class="h6">
+        {% blocktrans with used=array.total_used|mb_float_format available=array.total_available|mb_float_format %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio array.total_volume_count array.available_volume_count 100 %}"></div>
+      <div class="h5">{% trans "Volume Usage" %}</div>
+      <div class="h6">
+         {% blocktrans with used=array.total_volume_count|intcomma available=array.available_volume_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio array.total_snapshot_count array.available_snapshot_count 100 %}"></div>
+      <div class="h5">{% trans "Snapshot Usage" %}</div>
+      <div class="h6">
+         {% blocktrans with used=array.total_snapshot_count|intcomma available=array.available_snapshot_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio array.total_host_count array.available_host_count 100 %}"></div>
+      <div class="h5">{% trans "Host Usage" %}</div>
+      <div class="h6">
+         {% blocktrans with used=array.total_host_count|intcomma available=array.available_host_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio array.total_pgroup_count array.available_pgroup_count 100 %}"></div>
+      <div class="h5">{% trans "Protection Group Usage" %}</div>
+      <div class="h6">
+         {% blocktrans with used=array.total_pgroup_count|intcomma available=array.available_pgroup_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+  </div>
+  <dl class="dl-horizontal">
+    <dt>{% trans "Cinder Name" %}</dt>
+    <dd>{{ backend_id }}</dd>
+    <dt>{% trans "Array Name" %}</dt>
+    <dd>{{ array.array_name }}</dd>
+    <dt>{% trans "Purity Web UI" %}</dt>
+    <dd><a href="https://{{ array.target }}" target="_blank">https://{{ array.target }}</a></dd>
+    <dt>{% trans "Purity Version" %}</dt>
+    <dd>{{ array.version }}</dd>
+    <dt>{% trans "Array ID" %}</dt>
+    <dd>{{ array.id }}</dd>
+  </dl>
+
+  <h4>{% trans "Space" %}</h4>
+  <hr class="header_rule">
+  <dl class="dl-horizontal">
+    <dt>{% trans "Capacity" %}</dt>
+    <dd>{{ array.total_available|mb_float_format }}</dd>
+    <dt>{% trans "Used" %}</dt>
+    <dd>{{ array.total_used|mb_float_format }}</dd>
+    <dt>{% trans "Data Reduction" %}</dt>
+    <dd>{{ array.data_reduction }}</dd>
+    <dt>{% trans "Thin Provisioning" %}</dt>
+    <dd>{{ array.thin_provisioning }}</dd>
+    <dt>{% trans "Total Reduction" %}</dt>
+    <dd>{{ array.total_reduction }}</dd>
+  </dl>
+
+  <h4>{% trans "Objects" %}</h4>
+  <hr class="header_rule">
+  <dl class="dl-horizontal">
+    <dt>{% trans "Volumes" %}</dt>
+    <dd>{{ array.total_volume_count}}</dd>
+    <dt>{% trans "Snapshots" %}</dt>
+    <dd>{{ array.total_snapshot_count }}</dd>
+    <dt>{% trans "Hosts" %}</dt>
+    <dd>{{ array.total_host_count }}</dd>
+    <dt>{% trans "Protection Groups" %}</dt>
+    <dd>{{ array.total_pgroup_count }}</dd>
+  </dl>
+
+  <h4>{% trans "Performance" %}</h4>
+  <hr class="header_rule">
+  <dl class="dl-horizontal">
+    <dt>{% trans "Read IOPS" %}</dt>
+    <dd>{{ array.reads_per_sec|floatformat:2 }}</dd>
+    <dt>{% trans "Write IOPS" %}</dt>
+    <dd>{{ array.writes_per_sec|floatformat:2 }}</dd>
+    <dt>{% trans "Read/sec" %}</dt>
+    <dd>{{ array.output_per_sec|mb_float_format }}</dd>
+    <dt>{% trans "Write/sec" %}</dt>
+    <dd>{{ array.input_per_sec|mb_float_format }}</dd>
+    <dt>{% trans "Read Latency (µs)" %}</dt>
+    <dd>{{ array.usec_per_read_op|floatformat:2 }}</dd>
+    <dt>{% trans "Write Latency (µs)" %}</dt>
+    <dd>{{ array.usec_per_write_op|floatformat:2 }}</dd>
+  </dl>
+</div>

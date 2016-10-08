@@ -1,13 +1,53 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n horizon humanize sizeformat %}
 {% block title %}{% trans "Pure Panel" %}{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("Pure Panel") %}
+  {% include "horizon/common/_page_header.html" with title=_("Pure Storage") %}
 {% endblock page_header %}
 
 {% block main %}
-<p>HELLO PURE!!</p>
+<div class="quota-dynamic">
+  <h3>{% trans "Flash Array Summary" %}</h3>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio stats.total_used stats.total_available 100 %}"></div>
+      <div class="h5">{% trans "Capacity Usage" %}</div>
+      <div class="h6">
+        {% blocktrans with used=stats.total_used|mb_float_format available=stats.total_available|mb_float_format %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio stats.total_volume_count stats.available_volume_count 100 %}"></div>
+      <div class="h5">{% trans "Volume Usage" %}</div>
+      <div class="h6">
+         {% blocktrans with used=stats.total_volume_count|intcomma available=stats.available_volume_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio stats.total_snapshot_count stats.available_snapshot_count 100 %}"></div>
+      <div class="h5">{% trans "Snapshot Usage" %}</div>
+      <div class="h6">
+         {% blocktrans with used=stats.total_snapshot_count|intcomma available=stats.available_snapshot_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio stats.total_host_count stats.available_host_count 100 %}"></div>
+      <div class="h5">{% trans "Host Usage" %}</div>
+      <div class="h6">
+         {% blocktrans with used=stats.total_host_count|intcomma available=stats.available_host_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio stats.total_pgroup_count stats.available_pgroup_count 100 %}"></div>
+      <div class="h5">{% trans "Protection Group Usage" %}</div>
+      <div class="h6">
+         {% blocktrans with used=stats.total_pgroup_count|intcomma available=stats.available_pgroup_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+</div>
+<div class="row">
+   <div class="col-sm-12">
+   {{ tab_group.render }}
+   </div>
+</div>
 {% endblock %}
-
-

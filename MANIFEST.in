@@ -1,0 +1,10 @@
+include AUTHORS
+include ChangeLog
+exclude .gitignore
+exclude .gitreview
+
+global-exclude *.pyc
+
+include setup.py
+
+recursive-include horizon_pure *.js *.html *.scss

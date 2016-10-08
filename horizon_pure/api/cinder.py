@@ -13,10 +13,23 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from horizon.test import helpers as test
+from openstack_dashboard.api import cinder
 
 
-class PurePanelTests(test.TestCase):
-    # Unit tests for pure_panel.
-    def test_me(self):
-        self.assertTrue(1 + 1 == 2)
+class PureVolume(cinder.Volume):
+    _pure_attrs = [
+        'total',
+        'data_reduction',
+        'thin_provisioning',
+        'total_reduction',
+        'reads_per_sec',
+        'writes_per_sec',
+        'output_per_sec',
+        'input_per_sec',
+        'usec_per_read_op',
+        'usec_per_write_op',
+    ]
+
+    def __init__(self, apiresource):
+        super(PureVolume, self).__init__(apiresource)
+        self._attrs = self._attrs + self._pure_attrs

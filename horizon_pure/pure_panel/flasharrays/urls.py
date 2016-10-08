@@ -13,10 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from horizon.test import helpers as test
+from django.conf.urls import url
+
+from horizon_pure.pure_panel.flasharrays import views
 
 
-class PurePanelTests(test.TestCase):
-    # Unit tests for pure_panel.
-    def test_me(self):
-        self.assertTrue(1 + 1 == 2)
+urlpatterns = [
+    url(r'^(?P<backend_id>[^/]+)/$',
+        views.DetailView.as_view(),
+        name='detail'),
+]

@@ -19,20 +19,27 @@ from horizon import exceptions
 from horizon import tabs
 
 from horizon_pure.api import pure_flash_array
-from horizon_pure.pure_panel import tabs as pure_tabs
 
 
-class IndexView(tabs.TabbedTableView):
-    template_name = 'pure_panel/index.html'
-    tab_group_class = pure_tabs.PurePanelTabs
-    page_title = "Pure Storage"
+class OverviewTab(tabs.Tab):
+    name = _("Overview")
+    slug = "overview"
+    template_name = ("pure_panel/flasharrays/detail_view.html")
 
-    def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
+    def get_context_data(self, request):
+        context = super(OverviewTab, self).get_context_data(request)
+        context['backend_id'] = self.tab_group.kwargs['backend_id']
         try:
             array_api = pure_flash_array.FlashArrayAPI()
-            context["stats"] = array_api.get_total_stats()
+            context['array'] = array_api.get_array_info(context['backend_id'],
+                                                        detailed=True)
         except Exception:
             exceptions.handle(self.request,
-                              _('Unable to retrieve Flash Array statistics.'))
+                              _('Unable to retrieve Flash Array details.'))
+
         return context
+
+
+class FlashArrayDetailTabs(tabs.TabGroup):
+    slug = "flasharray_details"
+    tabs = (OverviewTab,)

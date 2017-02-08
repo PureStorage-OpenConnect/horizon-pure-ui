@@ -42,7 +42,7 @@ horizon you should be all set.
 Copy the panel configuration and enabled file::
 
   cp -rv ./horizon_pure/enabled $HORIZON_DIR/openstack_dashboard/local/
-  cp -v ./horizon_pure/settings.d/_9999_pure_settings.py.example $HORIZON_DIR/openstack_dashboard/local/_9999_pure_settings.py
+  cp -v ./horizon_pure/local_settings.d/_9999_pure_settings.py.example $HORIZON_DIR/openstack_dashboard/local/local_settings.d/_9999_pure_settings.py
 
 
 Configuration

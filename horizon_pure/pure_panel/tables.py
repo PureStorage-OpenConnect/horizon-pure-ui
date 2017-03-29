@@ -44,7 +44,7 @@ class PureFlashArrayTable(tables.DataTable):
                                    verbose_name=_('Data Reduction'))
     total_reduction = tables.Column('total_reduction',
                                     verbose_name=_('Total Reduction'))
-    volume_count = tables.Column('volume_count', verbose_name=_('Volume Count'))
+    volume_count = tables.Column('total_volume_count', verbose_name=_('Volume Count'))
     version = tables.Column('version', verbose_name=_('Purity Version'))
 
     class Meta(object):

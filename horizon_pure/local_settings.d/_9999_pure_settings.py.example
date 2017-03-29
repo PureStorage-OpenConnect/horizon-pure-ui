@@ -6,13 +6,13 @@ PURE_FLASH_ARRAYS = [
         # Virtual IP address or FQDN for Flash Array
         'san_ip': '10.231.128.11',
 
-        # API Token for Flash Array
+        # API Token for FlashArray
         'api_token': '661f9687-0b1e-7b0d-e07d-1e776d50f9eb',
 
         # The "host" config option for the Cinder Volume service
         'cinder_host': 'trusty-devstack-master-master-20161004-142340',
 
-        # The backend name for the Flash Array, typically this is the value
+        # The backend name for the FlashArray, typically this is the value
         # set in the "enabled_backends" section of cinder.conf
         'backend_name': 'pure-iscsi',
     },

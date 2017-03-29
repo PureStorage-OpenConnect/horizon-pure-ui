@@ -35,7 +35,7 @@ class OverviewTab(tabs.Tab):
                                                         detailed=True)
         except Exception:
             exceptions.handle(self.request,
-                              _('Unable to retrieve Flash Array details.'))
+                              _('Unable to retrieve FlashArray details.'))
 
         return context
 

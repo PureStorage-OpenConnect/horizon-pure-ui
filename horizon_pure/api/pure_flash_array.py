@@ -255,8 +255,9 @@ class FlashArrayAPI(object):
             if isinstance(space_info, list):
                 space_info = space_info[0]
             info.update(space_info)
-            info['volume_count'] = (len(array.list_volumes()) +
-                                    len(array.list_volumes(pending=True)))
+             # Remove this as it is unnecessary - use total_volume_count instead - here we are just double counting	
+             # info['volume_count'] = (len(array.list_volumes()) +
+             #                         len(array.list_volumes(pending=True)))
             info['status'] = 'Connected'
 
             if detailed:

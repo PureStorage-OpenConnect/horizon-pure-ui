@@ -127,7 +127,7 @@ And delete the enabled and settings files::
 Compatability
 -------------
 
-This has been tested with DevStack on master and Newton branches. Anything else
+This has been tested with DevStack on master and Victoria branches. Anything else
 your mileage may vary.
 
 

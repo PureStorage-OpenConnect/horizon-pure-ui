@@ -23,7 +23,7 @@ from horizon_pure.pure_panel import tables
 
 
 class FlashArrayTab(tabs.TableTab):
-    name = _("Flash Arrays")
+    name = _("FlashArrays")
     slug = "flasharray_tab"
     table_classes = (tables.PureFlashArrayTable,)
     template_name = "horizon/common/_detail_table.html"
@@ -43,6 +43,10 @@ class FlashArrayTab(tabs.TableTab):
 
             arrays = []
             backends = self.array_api.get_array_list()
+            controller = re.split('@', backends[0])[0]
+            for source_be in range(len(backends)):
+                backends[source_be] = controller + '@' + re.split('@', backends[source_be])[1]
+            backends = list(dict.fromkeys(backends))
             for be in backends:
                 arrays.append(self.array_api.get_array_info(be))
 

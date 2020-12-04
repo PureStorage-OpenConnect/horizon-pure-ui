@@ -242,7 +242,7 @@ class FlashArrayAPI(object):
             'total_host_count': total_host_count,
             'available_host_count': available_host_count,
             'total_pgroup_count': total_pgroup_count,
-            'available_pgroup_count': available_host_count,
+            'available_pgroup_count': available_pgroup_count,
         }
         return stats
 

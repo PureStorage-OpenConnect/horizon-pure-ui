@@ -221,7 +221,7 @@ class FlashArrayAPI(object):
                                                            pending=True))
             total_host_count += len(array.list_hosts())
 
-            total_pgroup_count += len(array.list_pgroups(snap=True,
+            total_pgroup_count += len(array.list_pgroups(snap=False,
                                                          pending=True))
             space_info = array.get(space=True)
             if isinstance(space_info, list):

@@ -17,6 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from horizon import exceptions
 from horizon import tabs
+import re
 
 from horizon_pure.api import pure_flash_array
 from horizon_pure.pure_panel import tables

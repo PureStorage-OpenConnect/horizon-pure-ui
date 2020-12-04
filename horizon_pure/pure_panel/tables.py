@@ -31,8 +31,8 @@ class PureFlashArrayTable(tables.DataTable):
         link_attrs={"target": "_blank"}
     )
     cinder_id = tables.Column(
-        'cinder_id',
-        verbose_name=_('Volume Service'),
+        'cinder_name',
+        verbose_name=_('Cinder Name'),
         link=get_detail_url
     )
     status = tables.Column('status', verbose_name=_('Status'))

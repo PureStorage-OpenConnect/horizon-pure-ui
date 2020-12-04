@@ -92,10 +92,10 @@ class FlashArrayAPI(object):
             LOG.debug('Initializing FlashArray client for ' + array_id)
             if self._array_config:
                 for array_conf in self._array_config:
-                    host = array_conf.get('cinder_host')
+#                    host = array_conf.get('cinder_host')
                     be_name = array_conf.get('backend_name')
-                    if (host == cinder_host and
-                            be_name == backend_name and
+#                    if (host == cinder_host and
+                    if (be_name == backend_name and
                             be_name == pool_name):
                         array = self._get_array_from_conf(array_conf)
                         self._arrays[array_id] = array
@@ -166,7 +166,13 @@ class FlashArrayAPI(object):
 
     def get_total_stats(self):
         stats = {}
-        for array_id in self._array_id_list:
+        arrays = self._array_id_list
+        controller = re.split('@', arrays[0])[0]
+        for array in range(len(arrays)):
+            arrays[array] = controller + '@' + re.split('@', arrays[array])[1]
+        arrays = list(dict.fromkeys(arrays))
+
+        for array_id in arrays:
             array_stats = self.get_array_stats(array_id)
             for key in array_stats:
                 if key in stats:
@@ -202,7 +208,7 @@ class FlashArrayAPI(object):
                     (int(version[0]) > 4)):
                 array_volume_cap = 5000
                 array_snapshot_cap = 50000
-                array_pgroup_cap = 50
+                array_pgroup_cap = 250
                 array_host_cap = 500
             if ((int(version[0]) == 5 and int(version[1]) >= 3)):
                 array_volume_cap = 10000
@@ -276,9 +282,11 @@ class FlashArrayAPI(object):
                         perf_info['queue_depth'] = 0
                 info.update(perf_info)
 
-                stats = self.get_array_stats(array_id)
-                info.update(stats)
+            stats = self.get_array_stats(array_id)
+            info.update(stats)
 
+        info['cinder_host'], temp_data = array_id.split('@')
+        info['cinder_name'], info['pool_name'] = temp_data.split('#')
         info['cinder_id'] = array_id
         info['target'] = array._target
 

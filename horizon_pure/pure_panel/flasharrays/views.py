@@ -14,7 +14,7 @@
 #    under the License.
 
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from horizon import tabs
 

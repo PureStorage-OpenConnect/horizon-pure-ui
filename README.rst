@@ -48,7 +48,7 @@ Copy the panel configuration and enabled file::
 Configuration
 -------------
 
-We need to modify `$HORIZON_DIR/openstack_dashboard/local/_9999_pure_settings.py`
+We need to modify `$HORIZON_DIR/openstack_dashboard/locallocal_settings.d/_9999_pure_settings.py`
 to configure our FlashArrays. The example configuration should look something
 like::
 
@@ -119,7 +119,7 @@ Just uninstall the python module::
 
 And delete the enabled and settings files::
 
-  rm horizon/openstack_dashboard/local/enabled/*_pure.*
+  rm $HORIZON_DIR/openstack_dashboard/local/enabled/_9999_pure_settings.py
 
 
 
@@ -129,6 +129,12 @@ Compatability
 
 This has been tested with DevStack on master and Newton branches. Anything else
 your mileage may vary.
+
+
+Known Issues
+------------
+An array running Purity//FA 6.0.x will show Total Reduction as 0.00 to 1 if
+FA-Files is enabled on the array.
 
 
 Support

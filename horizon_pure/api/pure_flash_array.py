@@ -202,7 +202,14 @@ class FlashArrayAPI(object):
                     (int(version[0]) > 4)):
                 array_volume_cap = 5000
                 array_snapshot_cap = 50000
+                array_pgroup_cap = 50
                 array_host_cap = 500
+            if ((int(version[0]) == 5 and int(version[1]) >= 3)):
+                array_volume_cap = 10000
+            if (int(version[0]) > 5):
+                array_volume_cap = 20000
+                array_snapshot_cap = 100000
+                array_host_cap = 1000
 
             available_volume_count += array_volume_cap
             available_snapshot_count += array_snapshot_cap
@@ -254,16 +261,19 @@ class FlashArrayAPI(object):
             space_info = array.get(space=True)
             if isinstance(space_info, list):
                 space_info = space_info[0]
+                if not space_info['thin_provisioning']:
+                    space_info['thin_provisioning'] = 0
+                if not space_info['total_reduction']:
+                    space_info['total_reduction'] = 0
             info.update(space_info)
-             # Remove this as it is unnecessary - use total_volume_count instead - here we are just double counting	
-             # info['volume_count'] = (len(array.list_volumes()) +
-             #                         len(array.list_volumes(pending=True)))
             info['status'] = 'Connected'
 
             if detailed:
                 perf_info = array.get(action='monitor')
                 if isinstance(perf_info, list):
                     perf_info = perf_info[0]
+                    if not perf_info['queue_depth']:
+                        perf_info['queue_depth'] = 0
                 info.update(perf_info)
 
                 stats = self.get_array_stats(array_id)

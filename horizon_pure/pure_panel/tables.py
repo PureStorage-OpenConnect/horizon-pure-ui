@@ -1,4 +1,4 @@
-from django.core import urlresolvers
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 import logging
 
@@ -19,8 +19,8 @@ def get_purity_url(array_info):
 
 def get_detail_url(array_info):
     LOG.debug('Building url for detail view of %s' % array_info.cinder_id)
-    return urlresolvers.reverse('horizon:admin:pure_panel:flasharrays:detail',
-                                kwargs={'backend_id': array_info.cinder_id})
+    return reverse('horizon:admin:pure_panel:flasharrays:detail',
+                   kwargs={'backend_id': array_info.cinder_id})
 
 
 class PureFlashArrayTable(tables.DataTable):

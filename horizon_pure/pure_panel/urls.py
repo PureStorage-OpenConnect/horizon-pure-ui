@@ -22,7 +22,7 @@ from horizon_pure.pure_panel.flasharrays import urls as array_urls
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'', include(
+    url(r'', include()
         array_urls,
-        namespace='flasharrays')),
+        'flasharrays'))),
 ]

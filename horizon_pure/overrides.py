@@ -17,11 +17,9 @@ import logging
 
 from django.utils.translation import ugettext_lazy as _
 from horizon import tables
-from openstack_dashboard.dashboards.project.volumes.volumes import tables \
+from openstack_dashboard.dashboards.project.volumes import tables \
     as volumes_tables
 from openstack_dashboard.dashboards.project.volumes import tabs
-from openstack_dashboard.dashboards.project.volumes.volumes import tabs \
-    as volume_tabs
 
 
 from horizon_pure.api import pure_flash_array
@@ -40,7 +38,7 @@ class PureVolumeTable(volumes_tables.VolumesTable):
         pass
 
 
-class PureVolumeTab(tabs.VolumeTab):
+class PureVolumeTab(tabs.VolumeDetailTabs):
     table_classes = (PureVolumeTable,)
 
     def get_volumes_data(self):
@@ -67,10 +65,10 @@ LOG.debug("Setting overrides for Project VolumeAndSnapshotTabs.")
 
 #tabs.VolumeAndSnapshotTabs.tabs = tuple(vol_tabs)
 
-volume_tabs.OverviewTab.template_name = "project/volumes/pure_detail_view.html"
+tabs.OverviewTab.template_name = "project/volumes/pure_detail_view.html"
 
 # TODO: Maybe hook in at the tab group step and see if we can avoid requerying
 # so much from the array.
-volume_tabs.OverviewTab.get_context_data = get_purified_volume_context_data
+tabs.OverviewTab.get_context_data = get_purified_volume_context_data
 
 LOG.debug("Completed overrides for Project VolumeAndSnapshotTabs.")

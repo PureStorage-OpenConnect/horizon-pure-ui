@@ -1,9 +1,6 @@
 Pure Storage Horizon Plugin
 ---------------------------
 
-WORK IN PROGRESS!!
-
-
 This OpenStack Dashboard plugin will add in deeper integration for Pure Storage
 FlashArray's. It includes:
 
@@ -130,12 +127,15 @@ Compatability
 This has been tested with DevStack on master and Victoria branches. Anything else
 your mileage may vary.
 
+It is expected that this **WILL NOT** work with OpenStack Stein or earlier due to Django version support
+
 
 Known Issues
 ------------
-An array running Purity//FA 6.0.x will show Total Reduction as 0.00 to 1 if
-FA-Files is enabled on the array.
-
+* An array running Purity//FA 6.0.x will show Total Reduction as 0.00 to 1 if
+  FA-Files is enabled on the array.
+* In a Cinder Active/Active configuration volume information may not always be available
+  depending on the controller creating the volume
 
 Support
 -------

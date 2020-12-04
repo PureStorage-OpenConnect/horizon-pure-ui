@@ -16,6 +16,7 @@
 from django.conf import settings
 import logging
 import purestorage
+import re
 
 from openstack_dashboard.api import base
 

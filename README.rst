@@ -57,18 +57,12 @@ like::
             # API Token for Flash Array
             'api_token': '661f9687-0b1e-7b0d-e07d-1e776d50f9eb',
 
-            # The "host" config option for the Cinder Volume service
-            'cinder_host': 'trusty-devstack-master-master-20161004-142340',
-
             # The backend name for the Flash Array, typically this is the value
             # set in the "enabled_backends" section of cinder.conf
             'backend_name': 'pure-iscsi',
         },
         # Repeat for additional arrays
     ]
-
-In an Active/Active Cinder environment, you must add each array twice. Once
-for each `cinder_host`.
 
 The basic idea is that for each Cinder backend+Pure Storage Flash Array you
 provide a mapping and credential information. This file would ideally be
@@ -85,10 +79,6 @@ api_token
   Same as the `api_token` in cinder.conf. This needs to be a valid REST API
   token to issues requests to the Array.
 
-cinder_host
-  This is the hostname for the Volume Service. It should match the
-  `host` config option in cinder.conf.
-
 backend_name
   This should be the same as the Volume Service configured backend name. It
   will match the value set in `enabled_backends`.
@@ -98,10 +88,10 @@ To better understand the naming, if you look at the output of
 `cinder service-list`::
 
   +------------------+---------------------------------------------+------+---------+-------+----------------------------+-----------------+
-  |      Binary      |                     Host                    | Zone |  Status | State |         Updated_at         | Disabled Reason |
+  | Binary           | Host                                        | Zone | Status  | State | Updated_at                 | Disabled Reason |
   +------------------+---------------------------------------------+------+---------+-------+----------------------------+-----------------+
-  | cinder-scheduler |       cinder-init1.dev.purestorage.com      | nova | enabled |   up  | 2016-10-12T20:30:25.000000 |        -        |
-  |  cinder-volume   | cinder-init1.dev.purestorage.com@pure-iscsi | nova | enabled |   up  | 2016-10-12T20:30:28.000000 |        -        |
+  | cinder-scheduler | cinder-init1.dev.purestorage.com            | nova | enabled | up    | 2016-10-12T20:30:25.000000 | -               |
+  | cinder-volume    | cinder-init1.dev.purestorage.com@pure-iscsi | nova | enabled | up    | 2016-10-12T20:30:28.000000 | -               |
   +------------------+---------------------------------------------+------+---------+-------+----------------------------+-----------------+
   
 The "Host" column for the cinder-volume binaries has the `cinder_host` and

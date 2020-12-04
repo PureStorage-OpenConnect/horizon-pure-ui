@@ -44,10 +44,6 @@ class FlashArrayTab(tabs.TableTab):
 
             arrays = []
             backends = self.array_api.get_array_list()
-            controller = re.split('@', backends[0])[0]
-            for source_be in range(len(backends)):
-                backends[source_be] = controller + '@' + re.split('@', backends[source_be])[1]
-            backends = list(dict.fromkeys(backends))
             for be in backends:
                 arrays.append(self.array_api.get_array_info(be))
 

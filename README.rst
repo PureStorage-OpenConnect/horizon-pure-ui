@@ -45,7 +45,7 @@ Copy the panel configuration and enabled file::
 Configuration
 -------------
 
-We need to modify `$HORIZON_DIR/openstack_dashboard/locallocal_settings.d/_9999_pure_settings.py`
+We need to modify `$HORIZON_DIR/openstack_dashboard/local/local_settings.d/_9999_pure_settings.py`
 to configure our FlashArrays. The example configuration should look something
 like::
 

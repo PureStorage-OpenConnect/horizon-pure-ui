@@ -106,7 +106,7 @@ After any changes to the configuration file it is necessary to restart the httpd
 
 For example::
 
-  systemctl restart apache2
+  sudo systemctl restart apache2
 
 Uninstalling
 ------------

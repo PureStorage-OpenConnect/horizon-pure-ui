@@ -99,6 +99,16 @@ The "Host" column for the cinder-volume binaries has the `cinder_host` and
 
 You may repeat these configuration dictionaries for as many backends as needed.
 
+Restart Horizon GUI
+-------------------
+
+After any changes to the configuration file it is necessary to restart the httpd service provided by OpenStack Horizon.
+
+For example:
+
+```bash
+systemctl restart apache2
+```
 
 Uninstalling
 ------------

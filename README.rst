@@ -1,6 +1,11 @@
 Pure Storage Horizon Plugin
 ---------------------------
 
+.. image:: ./Horizon-Head.JPG
+   :width: 300
+   :alt: Magnifying Image
+
+
 This OpenStack Dashboard plugin will add in deeper integration for Pure Storage
 FlashArray's. It includes:
 

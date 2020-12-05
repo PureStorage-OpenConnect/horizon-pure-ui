@@ -120,9 +120,9 @@ After installing the GUI plugin and restarting your httpd service, you can acces
      :alt: Main Pure Panel
 
     
-* Selecting the `Array Name` will open a new browser window to the FlashArray Logon GUI.
+* Selecting the ``Array Name`` will open a new browser window to the FlashArray Logon GUI.
 
-* Selecting the `Cinder Name` filed will give a more detailed view of that specific backend array, such as:
+* Selecting the ``Cinder Name`` filed will give a more detailed view of that specific backend array, such as:
 
    .. image:: ./Horizon-3.JPG
      :width: 400

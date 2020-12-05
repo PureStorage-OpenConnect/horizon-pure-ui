@@ -117,7 +117,7 @@ Just uninstall the python module::
 
 And delete the enabled and settings files::
 
-  rm $HORIZON_DIR/openstack_dashboard/local/enabled/_9999_pure_settings.py
+  rm $HORIZON_DIR/openstack_dashboard/local/local_settings.d/_9999_pure_settings.py
 
 
 Compatability

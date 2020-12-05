@@ -104,11 +104,9 @@ Restart Horizon GUI
 
 After any changes to the configuration file it is necessary to restart the httpd service provided by OpenStack Horizon.
 
-For example:
+For example::
 
-```bash
-systemctl restart apache2
-```
+  systemctl restart apache2
 
 Uninstalling
 ------------

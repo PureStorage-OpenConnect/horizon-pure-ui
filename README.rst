@@ -113,13 +113,11 @@ Uninstalling
 
 Just uninstall the python module::
 
-  sudo pip uninstall horizon-pure-ui
+  sudo pip uninstall horizon-pure
 
 And delete the enabled and settings files::
 
   rm $HORIZON_DIR/openstack_dashboard/local/enabled/_9999_pure_settings.py
-
-
 
 
 Compatability

@@ -108,6 +108,34 @@ For example::
 
   sudo systemctl restart apache2
 
+Using the Pure Horizon GUI
+--------------------------
+
+After installing the GUI plugin and restarting your httpd service, you can access the new Pure related information in two ways:
+
+1. As an Administrator by navigating to **Admin** -> **System** -> **Pure Storage** where you will see a panel similar to this:
+
+   .. image:: ./Horizon-1.JPG
+     :width: 400
+     :alt: Main Pure Panel
+
+    
+* Selecting the `Array Name` will open a new browser window to the FlashArray Logon GUI.
+
+* Selecting the `Cinder Name` filed will give a more detailed view of that specific backend array, such as:
+
+   .. image:: ./Horizon-3.JPG
+     :width: 400
+     :alt: Detailed Array Panel
+
+2. As a user from the Project level by navigating to **Project** -> **Volumes** -> **Volumes** and then selecting one of the volumes
+   provided by a Pure Storage Cinder driver. This will give an enhanced view of the volume with additional **Usage** information.
+   An example of this is:
+
+   .. image:: ./Horizon-2.JPG
+     :width: 400
+     :alt: Enhanced Volume Panel
+
 Uninstalling
 ------------
 

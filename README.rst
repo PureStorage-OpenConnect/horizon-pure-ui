@@ -131,7 +131,7 @@ It is expected that this **WILL NOT** work with OpenStack Stein or earlier due t
 
 Known Issues
 ------------
-* An array running Purity//FA 6.0.x will show Total Reduction as 0.00 to 1 if
+* An array running Purity//FA 6.0.x will show Total Reduction as "0.00 to 1" if
   FA-Files is enabled on the array.
 * Using the same array in different cinder stanzas will confuse the calculations and
   the array will be double counted

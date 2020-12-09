@@ -108,7 +108,11 @@ class FlashArrayAPI(object):
     def _get_volume_stats(self, array, vol_id):
         pure_vol_name = 'volume-%s-cinder' % vol_id
         LOG.debug('Getting volume stats for %s from %s' % (vol_id, array))
-        space_stats = array.get_volume(pure_vol_name, space=True)
+        try:
+            space_stats = array.get_volume(pure_vol_name, space=True)
+        except Exception:
+            pure_vol_name = "*::" + pure_vol_name
+            space_stats = array.get_volume(pure_vol_name, space=True)
         LOG.debug('raw_stats = %s' % space_stats)
         perf_stats = array.get_volume(pure_vol_name, action='monitor')[0]
         stats = space_stats.copy()

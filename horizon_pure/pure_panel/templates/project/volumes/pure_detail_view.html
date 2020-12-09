@@ -3,15 +3,23 @@
 <div class="detail">
   <dl class="dl-horizontal">
     <dt>{% trans "Name" %}</dt>
-    <dd>{{ volume.name }}</dd>
+    <dd data-display="{{ volume.name|default:volume.id }}" class="word-wrap">{{ volume.name }}</dd>
     <dt>{% trans "ID" %}</dt>
     <dd>{{ volume.id }}</dd>
     {% if volume.description %}
     <dt>{% trans "Description" %}</dt>
     <dd>{{ volume.description }}</dd>
     {% endif %}
+    <dt>{% trans "Project ID" %}</dt>
+    <dd>{{ volume.tenant_id|default:_("-") }}</dd>
     <dt>{% trans "Status" %}</dt>
     <dd>{{ volume.status|capfirst }}</dd>
+    <dt>{% trans "Group" %}</dt>
+    {% if group %}
+    <dd><a href="{% url 'horizon:project:volume_groups:detail' volume.group_id %}">{{ group.name_or_id }}</a></dd>
+    {% else %}
+    <dd>{% trans "-" %}</dd>
+    {% endif %}
   </dl>
 
   <h4>{% trans "Specs" %}</h4>

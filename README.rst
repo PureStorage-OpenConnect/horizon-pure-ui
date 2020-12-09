@@ -169,7 +169,6 @@ Known Issues
   FA-Files is enabled on the array.
 * Using the same array in different cinder stanzas will confuse the calculations and
   the array will be double counted
-* ActiveCluster volumes are not reporting performance and utilization data correctly
 
 Support
 -------

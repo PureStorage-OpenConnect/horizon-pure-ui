@@ -127,10 +127,14 @@ class FlashArrayAPI(object):
 
     def get_volume_info(self, volume):
         stats = {}
-        backend = getattr(volume, 'os-vol-host-attr:host')
-        backend = re.split('@', backend)[1]
-        backend = re.split('#', backend)[0]
-        LOG.debug('Found backend %s' % backend)
+        try:
+            backend = getattr(volume, 'os-vol-host-attr:host')
+            backend = re.split('@', backend)[1]
+            backend = re.split('#', backend)[0]
+            LOG.debug('Found backend %s' % backend)
+        except Exception:
+            backend = ''
+            LOG.debug('Backend not found. Looping...')
         if backend:
             # Fast path, we are an admin and know what array it belongs to
             array = self._get_array(backend)

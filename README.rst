@@ -156,7 +156,7 @@ and delete the enabled and settings files::
 Compatability
 -------------
 
-This has been tested with DevStack on master and Victoria branches. Anything else
+This has been tested with DevStack on the stable/victoria branch. Anything else
 your mileage may vary.
 
 It is expected that this **WILL NOT** work with OpenStack Stein or earlier due to Django

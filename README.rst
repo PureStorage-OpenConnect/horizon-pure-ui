@@ -50,7 +50,7 @@ Copy the panel configuration and enabled file::
 Configuration
 -------------
 
-To configure the plugin modify `$HORIZON_DIR/openstack_dashboard/local/local_settings.d/_9999_pure_settings.py`
+To configure the plugin modify ``$HORIZON_DIR/openstack_dashboard/local/local_settings.d/_9999_pure_settings.py``
 to add your Cinder enabled FlashArrays. The example configuration should look something
 like::
 

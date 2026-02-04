@@ -1,1 +1,2 @@
-purestorage
+py-pure-client>=1.47.0
+pbr>=2.0.0

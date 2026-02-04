@@ -17,9 +17,16 @@ FlashArrays. It includes:
 Requirements
 ------------
 
-There is a dependency on the 'purestorage' python module which is used for
-querying the FlashArray's REST API. Other than that you just need a working
+There is a dependency on the 'py-pure-client' python module which is used for
+querying the FlashArray's REST API 2.x. Other than that you just need a working
 Horizon installation.
+
+* OpenStack: 2024.2 (Dalmatian) or later
+* Python: 3.10, 3.11, or 3.12
+* Django: 4.2 or later
+* Horizon: From OpenStack 2024.2 or later
+* Pure Storage FlashArray with Purity 4.0 or later (REST API 2.x support required)
+* py-pure-client Python module (automatically installed with this package)
 
 
 Installation
@@ -153,14 +160,22 @@ and delete the enabled and settings files::
   rm $HORIZON_DIR/openstack_dashboard/local/local_settings.d/_9999_pure_settings.py
 
 
-Compatability
+Compatibility
 -------------
 
-This has been tested with DevStack on the stable/victoria branch. Anything else
-your mileage may vary.
+This version (2.0.0) has been updated to work with OpenStack 2024.2 (Dalmatian) and later releases.
 
-It is expected that this **WILL NOT** work with OpenStack Stein or earlier due to Django
-version requirements.
+**Requirements:**
+
+* OpenStack 2024.2 (Dalmatian) or later
+* Python 3.10, 3.11, or 3.12
+* Django 4.2 or later (as required by modern Horizon)
+* Horizon from OpenStack 2024.2 or later
+
+**Legacy Compatibility:**
+
+* For OpenStack Victoria and earlier releases, please use version 1.0.0 of this plugin
+* This version **WILL NOT** work with OpenStack releases prior to 2024.2 due to Python and Django version requirements
 
 
 Known Issues

@@ -15,7 +15,7 @@
 
 from django.conf import settings
 import logging
-import purestorage
+from pypureclient import flasharray
 import re
 
 from openstack_dashboard.api import base
@@ -45,10 +45,12 @@ def adjust_purity_size(bytes):
     return bytes / (1024 ** 2)
 
 
-class ErrorStateArray(purestorage.FlashArray):
+class ErrorStateArray(object):
+    """Represents an array in error state"""
     def __init__(self, target, e):
         self._target = target
         self.error = e
+        self.target = target
 
 
 class FlashArrayAPI(object):
@@ -67,11 +69,18 @@ class FlashArrayAPI(object):
 
     def _get_array_from_conf(self, conf):
         try:
-            array = purestorage.FlashArray(conf['san_ip'],
-                                           api_token=conf['api_token'])
-            array.error = None
-            return array
-        except purestorage.PureError as e:
+            # Create py-pure-client FlashArray client
+            client = flasharray.Client(
+                target=conf['san_ip'],
+                api_token=conf['api_token'],
+                user_agent='OpenStack-Horizon-Pure-UI/2.0.0'
+            )
+            # Add custom attributes for compatibility
+            client.error = None
+            client._target = conf['san_ip']
+            client.target = conf['san_ip']
+            return client
+        except Exception as e:
             LOG.warning('Unable to create Pure Storage FlashArray client: %s'
                         % str(e))
             return ErrorStateArray(conf['san_ip'], 'Failed to connect')
@@ -105,25 +114,57 @@ class FlashArrayAPI(object):
             data.append(self.get_volume_info(vol))
         return data
 
-    def _get_volume_stats(self, array, vol_id):
+    def _get_volume_stats(self, client, vol_id):
         pure_vol_name = 'volume-%s-cinder' % vol_id
-        LOG.debug('Getting volume stats for %s from %s' % (vol_id, array))
+        LOG.debug('Getting volume stats for %s from %s' % (vol_id, client.target))
+
         try:
-            space_stats = array.get_volume(pure_vol_name, space=True)
-        except Exception:
-            pure_vol_name = "*::" + pure_vol_name
-            space_stats = array.get_volume(pure_vol_name, space=True)
-        LOG.debug('raw_stats = %s' % space_stats)
-        perf_stats = array.get_volume(pure_vol_name, action='monitor')[0]
-        stats = space_stats.copy()
-        stats.update(perf_stats)
-        stats.update({
-            'total': adjust_purity_size(space_stats['total']),
-            'output_per_sec': adjust_purity_size(perf_stats['reads_per_sec']),
-            'input_per_sec': adjust_purity_size(perf_stats['writes_per_sec']),
-        })
-        LOG.debug('stats = %s' % stats)
-        return stats
+            # Try to get volume with space stats
+            response = client.get_volumes(names=[pure_vol_name])
+            if response.status_code != 200 or not list(response.items):
+                # Try with pod prefix
+                pure_vol_name = "*::" + pure_vol_name
+                response = client.get_volumes(names=[pure_vol_name])
+
+            if response.status_code != 200:
+                raise Exception(f"Failed to get volume: {response.errors}")
+
+            volume = list(response.items)[0]
+            space_stats = {
+                'total': volume.space.total_physical if volume.space else 0,
+                'snapshots': volume.space.snapshots if volume.space else 0,
+                'volumes': volume.space.unique if volume.space else 0,
+                'shared_space': volume.space.shared if volume.space else 0,
+                'data_reduction': volume.space.data_reduction if volume.space else 1.0,
+                'thin_provisioning': volume.space.thin_provisioning if volume.space else 1.0,
+                'total_reduction': volume.space.total_reduction if volume.space else 1.0,
+            }
+
+            # Get performance stats
+            perf_response = client.get_volumes_performance(names=[pure_vol_name])
+            perf_stats = {}
+            if perf_response.status_code == 200:
+                perf = list(perf_response.items)[0]
+                perf_stats = {
+                    'reads_per_sec': perf.reads_per_sec if perf.reads_per_sec else 0,
+                    'writes_per_sec': perf.writes_per_sec if perf.writes_per_sec else 0,
+                    'usec_per_read_op': perf.usec_per_read_op if perf.usec_per_read_op else 0,
+                    'usec_per_write_op': perf.usec_per_write_op if perf.usec_per_write_op else 0,
+                }
+
+            LOG.debug('raw_stats = %s' % space_stats)
+            stats = space_stats.copy()
+            stats.update(perf_stats)
+            stats.update({
+                'total': adjust_purity_size(space_stats['total']),
+                'output_per_sec': adjust_purity_size(perf_stats.get('reads_per_sec', 0)),
+                'input_per_sec': adjust_purity_size(perf_stats.get('writes_per_sec', 0)),
+            })
+            LOG.debug('stats = %s' % stats)
+            return stats
+        except Exception as e:
+            LOG.error(f"Error getting volume stats: {e}")
+            raise
 
     def get_volume_info(self, volume):
         stats = {}
@@ -142,7 +183,7 @@ class FlashArrayAPI(object):
             if array and not array.error:
                 try:
                     stats = self._get_volume_stats(array, volume.id)
-                except purestorage.PureError as e:
+                except Exception as e:
                     LOG.exception(e)
                     LOG.warning('Failed to get Purity volume info: %s' % e)
         else:
@@ -152,7 +193,7 @@ class FlashArrayAPI(object):
                 try:
                     stats = self._get_volume_stats(array, volume.id)
                     break
-                except purestorage.PureError as e:
+                except Exception as e:
                     LOG.debug('Unable to get volume stats from %s for vol %s:'
                               ' %s' % (array_id, volume.id, e))
             if not stats:
@@ -196,42 +237,59 @@ class FlashArrayAPI(object):
         available_pgroup_count = 0
 
         if not array.error:
-            info = array.get()
-            array_volume_cap = 500
-            array_snapshot_cap = 5000
-            array_host_cap = 50
-            array_pgroup_cap = 50
-            version = info['version'].split('.')
-            if ((int(version[0]) == 4 and int(version[1]) >= 8) or
-                    (int(version[0]) > 4)):
-                array_volume_cap = 5000
-                array_snapshot_cap = 50000
-                array_pgroup_cap = 250
-                array_host_cap = 500
-            if ((int(version[0]) == 5 and int(version[1]) >= 3)):
-                array_volume_cap = 10000
-            if (int(version[0]) > 5):
-                array_volume_cap = 20000
-                array_snapshot_cap = 100000
-                array_host_cap = 1000
+            # Get array info using py-pure-client
+            response = array.get_arrays()
+            if response.status_code == 200:
+                info = list(response.items)[0]
+                array_volume_cap = 500
+                array_snapshot_cap = 5000
+                array_host_cap = 50
+                array_pgroup_cap = 50
+                version = info.version.split('.')
+                if ((int(version[0]) == 4 and int(version[1]) >= 8) or
+                        (int(version[0]) > 4)):
+                    array_volume_cap = 5000
+                    array_snapshot_cap = 50000
+                    array_pgroup_cap = 250
+                    array_host_cap = 500
+                if ((int(version[0]) == 5 and int(version[1]) >= 3)):
+                    array_volume_cap = 10000
+                if (int(version[0]) > 5):
+                    array_volume_cap = 20000
+                    array_snapshot_cap = 100000
+                    array_host_cap = 1000
 
-            available_volume_count += array_volume_cap
-            available_snapshot_count += array_snapshot_cap
-            available_host_count += array_host_cap
-            available_pgroup_count += array_pgroup_cap
+                available_volume_count += array_volume_cap
+                available_snapshot_count += array_snapshot_cap
+                available_host_count += array_host_cap
+                available_pgroup_count += array_pgroup_cap
 
-            total_volume_count += len(array.list_volumes(pending=True))
-            total_snapshot_count += len(array.list_volumes(snap=True,
-                                                           pending=True))
-            total_host_count += len(array.list_hosts())
+                # Get volume counts
+                vol_response = array.get_volumes()
+                if vol_response.status_code == 200:
+                    total_volume_count += len(list(vol_response.items))
 
-            total_pgroup_count += len(array.list_pgroups(snap=False,
-                                                         pending=True))
-            space_info = array.get(space=True)
-            if isinstance(space_info, list):
-                space_info = space_info[0]
-            total_used = total_used + space_info['total']
-            total_available = total_available + space_info['capacity']
+                # Get snapshot counts (volumes with time_remaining set)
+                snap_response = array.get_volumes(filter='time_remaining!=null')
+                if snap_response.status_code == 200:
+                    total_snapshot_count += len(list(snap_response.items))
+
+                # Get host counts
+                host_response = array.get_hosts()
+                if host_response.status_code == 200:
+                    total_host_count += len(list(host_response.items))
+
+                # Get protection group counts
+                pgroup_response = array.get_protection_groups()
+                if pgroup_response.status_code == 200:
+                    total_pgroup_count += len(list(pgroup_response.items))
+
+                # Get space info
+                space_response = array.get_arrays_space()
+                if space_response.status_code == 200:
+                    space_info = list(space_response.items)[0]
+                    total_used = total_used + space_info.space.total_physical
+                    total_available = total_available + space_info.capacity
 
         total_used = adjust_purity_size(total_used)
         total_available = adjust_purity_size(total_available)
@@ -261,31 +319,59 @@ class FlashArrayAPI(object):
                 'status': 'Error: ' + array.error,
             }
         else:
-            info = array.get()
-            space_info = array.get(space=True)
-            if isinstance(space_info, list):
-                space_info = space_info[0]
-                if not space_info['thin_provisioning']:
-                    space_info['thin_provisioning'] = 0
-                if not space_info['total_reduction']:
-                    space_info['total_reduction'] = 0
-            info.update(space_info)
-            info['status'] = 'Connected'
+            # Get array info using py-pure-client
+            response = array.get_arrays()
+            if response.status_code != 200:
+                info = {
+                    'id': '1',
+                    'status': 'Error: Failed to get array info',
+                }
+            else:
+                array_obj = list(response.items)[0]
+                info = {
+                    'id': array_obj.id if array_obj.id else '1',
+                    'version': array_obj.version if array_obj.version else 'Unknown',
+                    'array_name': array_obj.name if array_obj.name else 'Unknown',
+                }
 
-            if detailed:
-                perf_info = array.get(action='monitor')
-                if isinstance(perf_info, list):
-                    perf_info = perf_info[0]
-                    if not perf_info['queue_depth']:
-                        perf_info['queue_depth'] = 0
-                info.update(perf_info)
+                # Get space info
+                space_response = array.get_arrays_space()
+                if space_response.status_code == 200:
+                    space_obj = list(space_response.items)[0]
+                    space_info = {
+                        'capacity': space_obj.capacity if space_obj.capacity else 0,
+                        'total': space_obj.space.total_physical if space_obj.space else 0,
+                        'snapshots': space_obj.space.snapshots if space_obj.space else 0,
+                        'volumes': space_obj.space.unique if space_obj.space else 0,
+                        'shared_space': space_obj.space.shared if space_obj.space else 0,
+                        'data_reduction': space_obj.space.data_reduction if space_obj.space and space_obj.space.data_reduction else 1.0,
+                        'thin_provisioning': space_obj.space.thin_provisioning if space_obj.space and space_obj.space.thin_provisioning else 1.0,
+                        'total_reduction': space_obj.space.total_reduction if space_obj.space and space_obj.space.total_reduction else 1.0,
+                    }
+                    info.update(space_info)
 
-            stats = self.get_array_stats(array_id)
-            info.update(stats)
+                info['status'] = 'Connected'
+
+                if detailed:
+                    # Get performance info
+                    perf_response = array.get_arrays_performance()
+                    if perf_response.status_code == 200:
+                        perf_obj = list(perf_response.items)[0]
+                        perf_info = {
+                            'queue_depth': perf_obj.queue_depth if perf_obj.queue_depth else 0,
+                            'reads_per_sec': perf_obj.reads_per_sec if perf_obj.reads_per_sec else 0,
+                            'writes_per_sec': perf_obj.writes_per_sec if perf_obj.writes_per_sec else 0,
+                            'usec_per_read_op': perf_obj.usec_per_read_op if perf_obj.usec_per_read_op else 0,
+                            'usec_per_write_op': perf_obj.usec_per_write_op if perf_obj.usec_per_write_op else 0,
+                        }
+                        info.update(perf_info)
+
+                stats = self.get_array_stats(array_id)
+                info.update(stats)
 
         info['cinder_name'] = array_id
         info['cinder_id'] = array_id
-        info['target'] = array._target
+        info['target'] = array._target if hasattr(array, '_target') else array.target
 
         for key in info:
             if key in SIZE_KEYS:

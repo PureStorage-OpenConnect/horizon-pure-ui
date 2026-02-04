@@ -39,6 +39,7 @@ This document outlines the changes made to upgrade the horizon-pure-ui plugin fr
   - Changed from `purestorage.FlashArray` to `pypureclient.flasharray.Client`
   - Updated all API method calls to use REST 2.x endpoints
   - Changed exception handling from `purestorage.PureError` to generic `Exception`
+  - Added `verify_ssl=False` to client initialization for self-signed certificate support
 - **Performance Improvements:**
   - Uses `total_item_count=True` parameter in API calls to efficiently get counts without retrieving all items
   - Uses proper `get_volume_snapshots()` method instead of filtering volumes

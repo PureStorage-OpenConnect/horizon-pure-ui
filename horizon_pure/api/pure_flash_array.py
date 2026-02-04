@@ -69,10 +69,12 @@ class FlashArrayAPI(object):
     def _get_array_from_conf(self, conf):
         try:
             # Create py-pure-client FlashArray client
+            # Note: verify_ssl=False is used because FlashArrays often use self-signed certificates
             client = flasharray.Client(
                 target=conf['san_ip'],
                 api_token=conf['api_token'],
-                user_agent='OpenStack-Horizon-Pure-UI/2.0.0'
+                user_agent='OpenStack-Horizon-Pure-UI/2.0.0',
+                verify_ssl=False
             )
             # Add custom attributes for compatibility
             client.error = None
@@ -86,6 +88,7 @@ class FlashArrayAPI(object):
 
     def _get_array(self, array_id):
         array = self._arrays.get(array_id)
+        LOG.debug('array = %s' % array)
         if array and hasattr(array, 'error') and array.error:
             LOG.debug('Removing FlashArray client for %s that was in error '
                       'state.' % array_id)
@@ -313,6 +316,8 @@ class FlashArrayAPI(object):
         LOG.debug('get_array_info called for array_id=%s, detailed=%s' % (array_id, detailed))
         array = self._get_array(array_id)
         LOG.debug('Got array object: %s, has error: %s' % (array, hasattr(array, 'error') and array.error))
+        LOG.debug('Array object type: %s' % type(array))
+        LOG.debug('Array has get_arrays method: %s' % hasattr(array, 'get_arrays'))
         if hasattr(array, 'error') and array.error:
             info = {
                 'id': '1',
@@ -331,7 +336,15 @@ class FlashArrayAPI(object):
         else:
             # Get array info using py-pure-client
             try:
+                LOG.debug('Calling get_arrays() for %s' % array_id)
                 response = array.get_arrays()
+                LOG.debug('get_arrays() response type: %s, value: %s' % (type(response), response))
+
+                if response is None:
+                    LOG.error('get_arrays() returned None for %s' % array_id)
+                    raise Exception('get_arrays() returned None')
+
+                LOG.debug('get_arrays() returned status %d for %s' % (response.status_code, array_id))
             except Exception as e:
                 LOG.error('Exception calling get_arrays() for %s: %s' % (array_id, str(e)))
                 info = {
@@ -371,6 +384,8 @@ class FlashArrayAPI(object):
                 }
             else:
                 array_obj = list(response.items)[0]
+                LOG.debug('Array object for %s: name=%s, version=%s, id=%s' %
+                         (array_id, array_obj.name, array_obj.version, array_obj.id))
                 info = {
                     'id': array_obj.id if array_obj.id else '1',
                     'version': array_obj.version if array_obj.version else 'Unknown',
@@ -378,7 +393,9 @@ class FlashArrayAPI(object):
                 }
 
                 # Get space info
+                LOG.debug('Calling get_arrays_space() for %s' % array_id)
                 space_response = array.get_arrays_space()
+                LOG.debug('get_arrays_space() returned status %d for %s' % (space_response.status_code, array_id))
                 if space_response.status_code == 200:
                     space_obj = list(space_response.items)[0]
                     space_info = {
@@ -390,6 +407,8 @@ class FlashArrayAPI(object):
                         'thin_provisioning': space_obj.space.thin_provisioning if space_obj.space and space_obj.space.thin_provisioning else 1.0,
                         'total_reduction': space_obj.space.total_reduction if space_obj.space and space_obj.space.total_reduction else 1.0,
                     }
+                    LOG.debug('Space info for %s: capacity=%s, total=%s, data_reduction=%s' %
+                             (array_id, space_info['capacity'], space_info['total'], space_info['data_reduction']))
                     info.update(space_info)
 
                 info['status'] = 'Connected'

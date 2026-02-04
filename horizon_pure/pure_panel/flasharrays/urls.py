@@ -13,13 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.conf.urls import url
+from django.urls import re_path
 
 from horizon_pure.pure_panel.flasharrays import views
 
 
 urlpatterns = [
-    url(r'^(?P<backend_id>[^/]+)/$',
+    re_path(r'^(?P<backend_id>[^/]+)/$',
         views.DetailView.as_view(),
         name='detail'),
 ]

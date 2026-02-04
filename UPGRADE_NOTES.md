@@ -14,6 +14,8 @@ This document outlines the changes made to upgrade the horizon-pure-ui plugin fr
 ### 2. Django Compatibility Updates
 - **Changed:** Replaced deprecated `ugettext_lazy` with `gettext_lazy` throughout the codebase
 - **Reason:** Django 4.0+ removed the `ugettext_lazy` alias
+- **Changed:** Replaced deprecated `url()` with `re_path()` in URL configurations
+- **Reason:** Django 4.0+ removed `django.conf.urls.url()` in favor of `django.urls.re_path()`
 - **Files Updated:**
   - `horizon_pure/overrides.py`
   - `horizon_pure/pure_panel/panel.py`
@@ -21,6 +23,8 @@ This document outlines the changes made to upgrade the horizon-pure-ui plugin fr
   - `horizon_pure/pure_panel/tabs.py`
   - `horizon_pure/pure_panel/views.py`
   - `horizon_pure/pure_panel/flasharrays/tabs.py`
+  - `horizon_pure/pure_panel/urls.py`
+  - `horizon_pure/pure_panel/flasharrays/urls.py`
 
 ### 3. Pure Storage SDK Migration
 - **Replaced:** `purestorage` SDK (REST API 1.x) with `py-pure-client` SDK (REST API 2.x)

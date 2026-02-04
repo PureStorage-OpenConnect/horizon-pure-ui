@@ -13,16 +13,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include
+from django.urls import re_path
 
 from horizon_pure.pure_panel import views
 from horizon_pure.pure_panel.flasharrays import urls as array_urls
 
 
 urlpatterns = [
-    url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'', include((
+    re_path(r'^$', views.IndexView.as_view(), name='index'),
+    re_path(r'', include((
         array_urls,
         'flasharrays'))),
 ]

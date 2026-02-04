@@ -87,7 +87,7 @@ class FlashArrayAPI(object):
 
     def _get_array(self, array_id):
         array = self._arrays.get(array_id)
-        if array and array.error:
+        if array and hasattr(array, 'error') and array.error:
             LOG.debug('Removing FlashArray client for %s that was in error '
                       'state.' % array_id)
             array = None
@@ -180,7 +180,7 @@ class FlashArrayAPI(object):
             # Fast path, we are an admin and know what array it belongs to
             array = self._get_array(backend)
             LOG.debug('Got array %s' % array)
-            if array and not array.error:
+            if array and not (hasattr(array, 'error') and array.error):
                 try:
                     stats = self._get_volume_stats(array, volume.id)
                 except Exception as e:
@@ -236,7 +236,7 @@ class FlashArrayAPI(object):
         available_host_count = 0
         available_pgroup_count = 0
 
-        if not array.error:
+        if not (hasattr(array, 'error') and array.error):
             # Get array info using py-pure-client
             response = array.get_arrays()
             if response.status_code == 200:
@@ -312,19 +312,67 @@ class FlashArrayAPI(object):
         return self._array_id_list
 
     def get_array_info(self, array_id, detailed=False):
+        LOG.debug('get_array_info called for array_id=%s, detailed=%s' % (array_id, detailed))
         array = self._get_array(array_id)
-        if array.error:
+        LOG.debug('Got array object: %s, has error: %s' % (array, hasattr(array, 'error') and array.error))
+        if hasattr(array, 'error') and array.error:
             info = {
                 'id': '1',
                 'status': 'Error: ' + array.error,
+                'array_name': 'Unknown',
+                'version': 'Unknown',
+                'capacity': 0,
+                'total': 0,
+                'snapshots': 0,
+                'volumes': 0,
+                'shared_space': 0,
+                'data_reduction': 1.0,
+                'thin_provisioning': 1.0,
+                'total_reduction': 1.0,
+                'total_volume_count': 0,
             }
         else:
             # Get array info using py-pure-client
-            response = array.get_arrays()
-            if response.status_code != 200:
+            try:
+                response = array.get_arrays()
+            except Exception as e:
+                LOG.error('Exception calling get_arrays() for %s: %s' % (array_id, str(e)))
                 info = {
                     'id': '1',
-                    'status': 'Error: Failed to get array info',
+                    'status': 'Error: ' + str(e),
+                    'array_name': 'Unknown',
+                    'version': 'Unknown',
+                    'capacity': 0,
+                    'total': 0,
+                    'snapshots': 0,
+                    'volumes': 0,
+                    'shared_space': 0,
+                    'data_reduction': 1.0,
+                    'thin_provisioning': 1.0,
+                    'total_reduction': 1.0,
+                    'total_volume_count': 0,
+                }
+                info['cinder_name'] = array_id
+                info['cinder_id'] = array_id
+                info['target'] = array._target if hasattr(array, '_target') else array.target
+                return base.APIDictWrapper(info)
+
+            if response.status_code != 200:
+                LOG.warning('get_arrays() returned status %d for %s' % (response.status_code, array_id))
+                info = {
+                    'id': '1',
+                    'status': 'Error: Failed to get array info (HTTP %d)' % response.status_code,
+                    'array_name': 'Unknown',
+                    'version': 'Unknown',
+                    'capacity': 0,
+                    'total': 0,
+                    'snapshots': 0,
+                    'volumes': 0,
+                    'shared_space': 0,
+                    'data_reduction': 1.0,
+                    'thin_provisioning': 1.0,
+                    'total_reduction': 1.0,
+                    'total_volume_count': 0,
                 }
             else:
                 array_obj = list(response.items)[0]

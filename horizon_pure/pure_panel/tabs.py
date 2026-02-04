@@ -35,22 +35,38 @@ class FlashArrayTab(tabs.TableTab):
         return self._has_more
 
     def get_flasharrays_data(self):
+        import logging
+        LOG = logging.getLogger(__name__)
+
         try:
             # TODO: Add pagination
             self._has_more = False
 
             if not self.array_api:
+                LOG.debug('Initializing FlashArrayAPI')
                 self.array_api = pure_flash_array.FlashArrayAPI()
 
             arrays = []
             backends = self.array_api.get_array_list()
-            for be in backends:
-                arrays.append(self.array_api.get_array_info(be))
+            LOG.debug('Found %d backends: %s' % (len(backends), backends))
 
+            for be in backends:
+                LOG.debug('Getting array info for backend: %s' % be)
+                try:
+                    array_info = self.array_api.get_array_info(be)
+                    LOG.debug('Array info for %s: %s' % (be, str(array_info)))
+                    arrays.append(array_info)
+                except Exception as e:
+                    LOG.exception('Failed to get array info for %s: %s' % (be, str(e)))
+                    # Continue to next array instead of failing completely
+                    continue
+
+            LOG.debug('Returning %d arrays' % len(arrays))
             return arrays
 
         except Exception as e:
-            error_message = _('Unable to get arrays')
+            LOG.exception('Exception in get_flasharrays_data: %s' % str(e))
+            error_message = _('Unable to get arrays: %s') % str(e)
             exceptions.handle(self.request, error_message)
             return []
 

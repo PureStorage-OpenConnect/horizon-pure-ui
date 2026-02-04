@@ -86,9 +86,101 @@ class FlashArrayAPI(object):
                         % str(e))
             return ErrorStateArray(conf['san_ip'], 'Failed to connect')
 
+    def _get_capacity_limits(self, model, version):
+        """
+        Get capacity limits based on array model and Purity version.
+
+        Minimum supported version: Purity 6.1.0
+
+        Args:
+            model: Array model (e.g., 'FA-X50R2', 'FA-C60')
+            version: Purity version (e.g., '6.8.5')
+
+        Returns:
+            Tuple of (volume_cap, snapshot_cap, host_cap, pgroup_cap)
+        """
+        # Parse version to compare
+        try:
+            version_parts = version.split('.')
+            major = int(version_parts[0])
+            minor = int(version_parts[1]) if len(version_parts) > 1 else 0
+            patch = int(version_parts[2]) if len(version_parts) > 2 else 0
+        except (ValueError, IndexError):
+            # If version parsing fails, use conservative defaults
+            LOG.warning('Failed to parse Purity version: %s' % version)
+            return (5000, 50000, 500, 100)
+
+        # Check minimum version requirement
+        if major < 6 or (major == 6 and minor < 1):
+            LOG.error('Purity version %s is below minimum supported version 6.1.0' % version)
+            return (5000, 50000, 500, 100)
+
+        # Extract model family (remove FA- prefix and generation suffix)
+        # e.g., "FA-X50R2" -> "X50", "FA-C60" -> "C60"
+        model_clean = model.replace('FA-', '').replace('//', '')
+        # Remove generation suffix (R2, R3, R4, etc.)
+        model_family = re.sub(r'R\d+$', '', model_clean)
+
+        # Capacity lookup based on model family and version
+        # Format: (volumes, snapshots, hosts, pgroups)
+        # Snapshot limit is typically 10x volume limit for modern arrays
+
+        # XL-class arrays (//XL130, //XL170)
+        if model_family in ['XL130', 'XL170']:
+            if major >= 6 and minor >= 3:
+                return (20000, 100000, 2000, 250)
+
+        # X-class high-end (//X70, //X90)
+        elif model_family in ['X70', 'X90']:
+            if major >= 6 and minor >= 3:
+                return (20000, 100000, 1000, 250)
+
+        # X-class mid-range (//X20, //X50)
+        elif model_family in ['X20', 'X50']:
+            if major >= 6 and minor >= 3:
+                return (10000, 50000, 500, 100)
+
+        # X-class entry (//X10)
+        elif model_family in ['X10']:
+            if major >= 6 and minor >= 3:
+                return (500, 5000, 500, 50)
+
+        # C-class high-end (//C70, //C90)
+        elif model_family in ['C70', 'C90']:
+            if major >= 6 and minor >= 4 and patch >= 7:
+                return (20000, 100000, 2000, 250)
+            elif major >= 6 and minor >= 3:
+                return (10000, 50000, 1000, 100)
+
+        # C-class mid-range (//C50, //C60)
+        elif model_family in ['C50', 'C60']:
+            if major >= 6 and minor >= 3:
+                return (10000, 50000, 1000, 100)
+
+        # C-class entry (//C40)
+        elif model_family in ['C40']:
+            if major >= 6 and minor >= 3:
+                return (5000, 25000, 1000, 100)
+
+        # C-class small (//C20, //RC20)
+        elif model_family in ['C20', 'RC20']:
+            if major >= 6 and minor >= 8 and patch >= 2:
+                return (5000, 25000, 500, 100)
+            elif major >= 6 and minor >= 3:
+                return (5000, 25000, 1000, 100)
+
+        # E-class (//E)
+        elif model_family in ['E']:
+            if major >= 6 and minor >= 6:
+                return (5000, 25000, 1000, 100)
+
+        # Default fallback for unknown models or older versions
+        LOG.warning('Unknown array model %s or version %s, using conservative defaults' %
+                   (model, version))
+        return (5000, 25000, 500, 100)
+
     def _get_array(self, array_id):
         array = self._arrays.get(array_id)
-        LOG.debug('array = %s' % array)
         if array and hasattr(array, 'error') and array.error:
             LOG.debug('Removing FlashArray client for %s that was in error '
                       'state.' % array_id)
@@ -239,26 +331,17 @@ class FlashArrayAPI(object):
 
         if not (hasattr(array, 'error') and array.error):
             # Get array info using py-pure-client
-            response = array.get_arrays()
-            if response.status_code == 200:
-                info = list(response.items)[0]
-                array_volume_cap = 500
-                array_snapshot_cap = 5000
-                array_host_cap = 50
-                array_pgroup_cap = 50
-                version = info.version.split('.')
-                if ((int(version[0]) == 4 and int(version[1]) >= 8) or
-                        (int(version[0]) > 4)):
-                    array_volume_cap = 5000
-                    array_snapshot_cap = 50000
-                    array_pgroup_cap = 250
-                    array_host_cap = 500
-                if ((int(version[0]) == 5 and int(version[1]) >= 3)):
-                    array_volume_cap = 10000
-                if (int(version[0]) > 5):
-                    array_volume_cap = 20000
-                    array_snapshot_cap = 100000
-                    array_host_cap = 1000
+            # Get controller info to determine array model and version
+            controller_response = array.get_controllers()
+            if controller_response.status_code == 200:
+                controller = list(controller_response.items)[0]
+                model = controller.model
+                version = controller.version
+
+                # Get capacity limits based on model and version
+                # TODO: Implement lookup table from Excel data
+                array_volume_cap, array_snapshot_cap, array_host_cap, array_pgroup_cap = \
+                    self._get_capacity_limits(model, version)
 
                 available_volume_count += array_volume_cap
                 available_snapshot_count += array_snapshot_cap

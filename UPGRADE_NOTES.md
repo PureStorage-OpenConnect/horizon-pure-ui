@@ -44,7 +44,12 @@ This document outlines the changes made to upgrade the horizon-pure-ui plugin fr
   - Uses `total_item_count=True` parameter in API calls to efficiently get counts without retrieving all items
   - Uses proper `get_volume_snapshots()` method instead of filtering volumes
   - Significantly improves performance for arrays with many volumes, snapshots, hosts, or protection groups
-- **Minimum FlashArray Version:** Purity 4.0 or later (REST API 2.x support required)
+- **Dynamic Capacity Limits:**
+  - Uses `get_controllers()` API to detect array model and Purity version
+  - Capacity limits are dynamically determined based on actual hardware capabilities
+  - Supports all FlashArray models: XL-class, X-class (X10-X90), C-class (C20-C90), E-class, RC20
+  - Accurate limits for volumes, snapshots, hosts, and protection groups per model
+- **Minimum FlashArray Version:** Purity 6.1.0 or later (REST API 2.x support required)
 
 ### 4. Package Metadata Updates (setup.cfg)
 - **Version:** Bumped from 1.0.0 to 2.0.0
@@ -81,7 +86,7 @@ sudo pip install .
 2. **Older OpenStack Versions:** Not compatible with OpenStack releases prior to 2024.2
 3. **Django 3.x and Earlier:** Not compatible with Django versions prior to 4.2
 4. **Pure Storage SDK Changed:** Migrated from `purestorage` SDK to `py-pure-client` SDK
-   - FlashArrays must support REST API 2.x (Purity 4.0 or later)
+   - FlashArrays must support REST API 2.x (Purity 6.1.0 or later)
    - The old `purestorage` SDK is no longer used or supported
 
 ## Migration Guide

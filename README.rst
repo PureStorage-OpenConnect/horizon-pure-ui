@@ -25,7 +25,7 @@ Horizon installation.
 * Python: 3.10, 3.11, or 3.12
 * Django: 4.2 or later
 * Horizon: From OpenStack 2024.2 or later
-* Pure Storage FlashArray with Purity 4.0 or later (REST API 2.x support required)
+* Pure Storage FlashArray with Purity 6.1.0 or later (REST API 2.x support required)
 * py-pure-client Python module (automatically installed with this package)
 
 
@@ -184,6 +184,11 @@ Known Issues
   FA-Files is enabled on the array.
 * Using the same array in different cinder stanzas will confuse the calculations and
   the array will be double counted
+
+Development
+-----------
+This version (2.0.0) was developed with assistance from Augment AI to modernize
+the codebase for OpenStack 2024.2 (Dalmatian) and migrate to the py-pure-client SDK.
 
 Support
 -------

@@ -29,21 +29,42 @@ Horizon installation.
 * py-pure-client Python module (automatically installed with this package)
 
 
+Building the Package
+--------------------
+
+To build a wheel package::
+
+  git clone https://github.com/PureStorage-OpenConnect/horizon-pure-ui.git
+  cd horizon-pure-ui
+  pip install build
+  python -m build --wheel
+
+The wheel file will be created in the ``dist/`` directory as ``horizon_pure-2.0.0-py3-none-any.whl``.
+
+
 Installation
 ------------
 
 You will need to install and configure Horizon first.
 
-Then to install the Pure Horizon plugin package, perform the following commands::
+**Install from Source:**
+
+To install the Pure Horizon plugin package directly from source::
 
   git clone https://github.com/PureStorage-OpenConnect/horizon-pure-ui.git
   cd horizon-pure-ui
   sudo pip install .
 
-If Horizon was installed to run with a virtual environment you may need to
-install using a different pip command, for  example::
+**Install from Wheel:**
 
-  $HORIZON_DIR/tools/with_venv.sh pip install
+To install from a pre-built wheel package::
+
+  sudo pip install horizon_pure-2.0.0-py3-none-any.whl
+
+If Horizon was installed to run with a virtual environment you may need to
+install using a different pip command, for example::
+
+  $HORIZON_DIR/tools/with_venv.sh pip install .
 
 As long as the 'horizon_pure' module is available in the PYTHON_PATH for
 Horizon you should be all set.

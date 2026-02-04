@@ -124,6 +124,7 @@ class FlashArrayAPI(object):
         # Capacity lookup based on model family and version
         # Format: (volumes, snapshots, hosts, pgroups)
         # Snapshot limit is typically 10x volume limit for modern arrays
+        # Protection groups (pgroups) max is 250 for all arrays
 
         # XL-class arrays (//XL130, //XL170)
         if model_family in ['XL130', 'XL170']:
@@ -138,46 +139,46 @@ class FlashArrayAPI(object):
         # X-class mid-range (//X20, //X50)
         elif model_family in ['X20', 'X50']:
             if major >= 6 and minor >= 3:
-                return (10000, 50000, 500, 100)
+                return (10000, 50000, 500, 250)
 
         # X-class entry (//X10)
         elif model_family in ['X10']:
             if major >= 6 and minor >= 3:
-                return (500, 5000, 500, 50)
+                return (500, 5000, 500, 250)
 
         # C-class high-end (//C70, //C90)
         elif model_family in ['C70', 'C90']:
             if major >= 6 and minor >= 4 and patch >= 7:
                 return (20000, 100000, 2000, 250)
             elif major >= 6 and minor >= 3:
-                return (10000, 50000, 1000, 100)
+                return (10000, 50000, 1000, 250)
 
         # C-class mid-range (//C50, //C60)
         elif model_family in ['C50', 'C60']:
             if major >= 6 and minor >= 3:
-                return (10000, 50000, 1000, 100)
+                return (10000, 50000, 1000, 250)
 
         # C-class entry (//C40)
         elif model_family in ['C40']:
             if major >= 6 and minor >= 3:
-                return (5000, 25000, 1000, 100)
+                return (5000, 25000, 1000, 250)
 
         # C-class small (//C20, //RC20)
         elif model_family in ['C20', 'RC20']:
             if major >= 6 and minor >= 8 and patch >= 2:
-                return (5000, 25000, 500, 100)
+                return (5000, 25000, 500, 250)
             elif major >= 6 and minor >= 3:
-                return (5000, 25000, 1000, 100)
+                return (5000, 25000, 1000, 250)
 
         # E-class (//E)
         elif model_family in ['E']:
             if major >= 6 and minor >= 6:
-                return (5000, 25000, 1000, 100)
+                return (5000, 25000, 1000, 250)
 
         # Default fallback for unknown models or older versions
         LOG.warning('Unknown array model %s or version %s, using conservative defaults' %
                    (model, version))
-        return (5000, 25000, 500, 100)
+        return (5000, 25000, 500, 250)
 
     def _get_array(self, array_id):
         array = self._arrays.get(array_id)
@@ -396,11 +397,7 @@ class FlashArrayAPI(object):
         return self._array_id_list
 
     def get_array_info(self, array_id, detailed=False):
-        LOG.debug('get_array_info called for array_id=%s, detailed=%s' % (array_id, detailed))
         array = self._get_array(array_id)
-        LOG.debug('Got array object: %s, has error: %s' % (array, hasattr(array, 'error') and array.error))
-        LOG.debug('Array object type: %s' % type(array))
-        LOG.debug('Array has get_arrays method: %s' % hasattr(array, 'get_arrays'))
         if hasattr(array, 'error') and array.error:
             info = {
                 'id': '1',
@@ -419,15 +416,11 @@ class FlashArrayAPI(object):
         else:
             # Get array info using py-pure-client
             try:
-                LOG.debug('Calling get_arrays() for %s' % array_id)
                 response = array.get_arrays()
-                LOG.debug('get_arrays() response type: %s, value: %s' % (type(response), response))
 
                 if response is None:
                     LOG.error('get_arrays() returned None for %s' % array_id)
                     raise Exception('get_arrays() returned None')
-
-                LOG.debug('get_arrays() returned status %d for %s' % (response.status_code, array_id))
             except Exception as e:
                 LOG.error('Exception calling get_arrays() for %s: %s' % (array_id, str(e)))
                 info = {
@@ -467,8 +460,6 @@ class FlashArrayAPI(object):
                 }
             else:
                 array_obj = list(response.items)[0]
-                LOG.debug('Array object for %s: name=%s, version=%s, id=%s' %
-                         (array_id, array_obj.name, array_obj.version, array_obj.id))
                 info = {
                     'id': array_obj.id if array_obj.id else '1',
                     'version': array_obj.version if array_obj.version else 'Unknown',
@@ -476,13 +467,9 @@ class FlashArrayAPI(object):
                 }
 
                 # Get space info
-                LOG.debug('Calling get_arrays_space() for %s' % array_id)
                 space_response = array.get_arrays_space()
-                LOG.debug('get_arrays_space() returned status %d for %s' % (space_response.status_code, array_id))
                 if space_response.status_code == 200:
                     space_obj = list(space_response.items)[0]
-                    LOG.debug('Space object attributes: %s' % dir(space_obj))
-                    LOG.debug('Space object.space attributes: %s' % dir(space_obj.space) if hasattr(space_obj, 'space') else 'No space attribute')
 
                     # Extract space information with proper field names
                     capacity = space_obj.capacity if hasattr(space_obj, 'capacity') and space_obj.capacity else 0
@@ -529,18 +516,13 @@ class FlashArrayAPI(object):
                         'thin_provisioning': thin_provisioning,
                         'total_reduction': total_reduction,
                     }
-                    LOG.debug('Space info for %s: capacity=%s, total=%s, snapshots=%s, volumes=%s, data_reduction=%s' %
-                             (array_id, space_info['capacity'], space_info['total'], space_info['snapshots'],
-                              space_info['volumes'], space_info['data_reduction']))
                     info.update(space_info)
 
                 info['status'] = 'Connected'
 
                 if detailed:
                     # Get performance info
-                    LOG.debug('Calling get_arrays_performance() for %s' % array_id)
                     perf_response = array.get_arrays_performance()
-                    LOG.debug('get_arrays_performance() returned status %d for %s' % (perf_response.status_code, array_id))
                     if perf_response.status_code == 200:
                         perf_obj = list(perf_response.items)[0]
                         perf_info = {
@@ -550,8 +532,6 @@ class FlashArrayAPI(object):
                             'usec_per_read_op': perf_obj.usec_per_read_op if hasattr(perf_obj, 'usec_per_read_op') and perf_obj.usec_per_read_op else 0,
                             'usec_per_write_op': perf_obj.usec_per_write_op if hasattr(perf_obj, 'usec_per_write_op') and perf_obj.usec_per_write_op else 0,
                         }
-                        LOG.debug('Performance info for %s: reads=%s, writes=%s, queue_depth=%s' %
-                                 (array_id, perf_info['reads_per_sec'], perf_info['writes_per_sec'], perf_info['queue_depth']))
                         info.update(perf_info)
 
                 stats = self.get_array_stats(array_id)

@@ -48,7 +48,8 @@ This document outlines the changes made to upgrade the horizon-pure-ui plugin fr
   - Uses `get_controllers()` API to detect array model and Purity version
   - Capacity limits are dynamically determined based on actual hardware capabilities
   - Supports all FlashArray models: XL-class, X-class (X10-X90), C-class (C20-C90), E-class, RC20
-  - Accurate limits for volumes, snapshots, hosts, and protection groups per model
+  - Accurate limits for volumes, snapshots, and hosts per model
+  - Protection groups (pgroups) max is 250 for all arrays
 - **Minimum FlashArray Version:** Purity 6.1.0 or later (REST API 2.x support required)
 
 ### 4. Package Metadata Updates (setup.cfg)

@@ -131,10 +131,9 @@ class FlashArrayAPI(object):
 
             volume = list(response.items)[0]
             space_stats = {
-                'total': volume.space.total_physical if volume.space else 0,
+                'total': volume.space.total_provisioned if volume.space else 0,
                 'snapshots': volume.space.snapshots if volume.space else 0,
-                'volumes': volume.space.unique if volume.space else 0,
-                'shared_space': volume.space.shared if volume.space else 0,
+                'volumes': volume.space.total_physical if volume.space else 0,
                 'data_reduction': volume.space.data_reduction if volume.space else 1.0,
                 'thin_provisioning': volume.space.thin_provisioning if volume.space else 1.0,
                 'total_reduction': volume.space.total_reduction if volume.space else 1.0,
@@ -264,25 +263,25 @@ class FlashArrayAPI(object):
                 available_host_count += array_host_cap
                 available_pgroup_count += array_pgroup_cap
 
-                # Get volume counts
-                vol_response = array.get_volumes()
-                if vol_response.status_code == 200:
-                    total_volume_count += len(list(vol_response.items))
+                # Get volume counts using total_item_count
+                vol_response = array.get_volumes(total_item_count=True)
+                if vol_response.status_code == 200 and vol_response.total_item_count is not None:
+                    total_volume_count += vol_response.total_item_count
 
-                # Get snapshot counts (volumes with time_remaining set)
-                snap_response = array.get_volumes(filter='time_remaining!=null')
-                if snap_response.status_code == 200:
-                    total_snapshot_count += len(list(snap_response.items))
+                # Get snapshot counts using total_item_count
+                snap_response = array.get_volume_snapshots(total_item_count=True)
+                if snap_response.status_code == 200 and snap_response.total_item_count is not None:
+                    total_snapshot_count += snap_response.total_item_count
 
-                # Get host counts
-                host_response = array.get_hosts()
-                if host_response.status_code == 200:
-                    total_host_count += len(list(host_response.items))
+                # Get host counts using total_item_count
+                host_response = array.get_hosts(total_item_count=True)
+                if host_response.status_code == 200 and host_response.total_item_count is not None:
+                    total_host_count += host_response.total_item_count
 
-                # Get protection group counts
-                pgroup_response = array.get_protection_groups()
-                if pgroup_response.status_code == 200:
-                    total_pgroup_count += len(list(pgroup_response.items))
+                # Get protection group counts using total_item_count
+                pgroup_response = array.get_protection_groups(total_item_count=True)
+                if pgroup_response.status_code == 200 and pgroup_response.total_item_count is not None:
+                    total_pgroup_count += pgroup_response.total_item_count
 
                 # Get space info
                 space_response = array.get_arrays_space()

@@ -39,6 +39,10 @@ This document outlines the changes made to upgrade the horizon-pure-ui plugin fr
   - Changed from `purestorage.FlashArray` to `pypureclient.flasharray.Client`
   - Updated all API method calls to use REST 2.x endpoints
   - Changed exception handling from `purestorage.PureError` to generic `Exception`
+- **Performance Improvements:**
+  - Uses `total_item_count=True` parameter in API calls to efficiently get counts without retrieving all items
+  - Uses proper `get_volume_snapshots()` method instead of filtering volumes
+  - Significantly improves performance for arrays with many volumes, snapshots, hosts, or protection groups
 - **Minimum FlashArray Version:** Purity 4.0 or later (REST API 2.x support required)
 
 ### 4. Package Metadata Updates (setup.cfg)

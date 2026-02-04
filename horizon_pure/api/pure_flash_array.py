@@ -481,33 +481,77 @@ class FlashArrayAPI(object):
                 LOG.debug('get_arrays_space() returned status %d for %s' % (space_response.status_code, array_id))
                 if space_response.status_code == 200:
                     space_obj = list(space_response.items)[0]
+                    LOG.debug('Space object attributes: %s' % dir(space_obj))
+                    LOG.debug('Space object.space attributes: %s' % dir(space_obj.space) if hasattr(space_obj, 'space') else 'No space attribute')
+
+                    # Extract space information with proper field names
+                    capacity = space_obj.capacity if hasattr(space_obj, 'capacity') and space_obj.capacity else 0
+
+                    # Get space metrics - check which attributes exist
+                    total_physical = 0
+                    snapshots = 0
+                    volumes = 0
+                    data_reduction = 1.0
+                    thin_provisioning = 1.0
+                    total_reduction = 1.0
+
+                    if hasattr(space_obj, 'space') and space_obj.space:
+                        # Try total_provisioned first, fall back to total_physical
+                        if hasattr(space_obj.space, 'total_provisioned'):
+                            total_physical = space_obj.space.total_provisioned
+                        elif hasattr(space_obj.space, 'total_physical'):
+                            total_physical = space_obj.space.total_physical
+
+                        if hasattr(space_obj.space, 'snapshots'):
+                            snapshots = space_obj.space.snapshots
+
+                        # Try total_physical for volumes, fall back to unique
+                        if hasattr(space_obj.space, 'total_physical'):
+                            volumes = space_obj.space.total_physical
+                        elif hasattr(space_obj.space, 'unique'):
+                            volumes = space_obj.space.unique
+
+                        if hasattr(space_obj.space, 'data_reduction') and space_obj.space.data_reduction:
+                            data_reduction = space_obj.space.data_reduction
+
+                        if hasattr(space_obj.space, 'thin_provisioning') and space_obj.space.thin_provisioning:
+                            thin_provisioning = space_obj.space.thin_provisioning
+
+                        if hasattr(space_obj.space, 'total_reduction') and space_obj.space.total_reduction:
+                            total_reduction = space_obj.space.total_reduction
+
                     space_info = {
-                        'capacity': space_obj.capacity if space_obj.capacity else 0,
-                        'total': space_obj.space.total_physical if space_obj.space else 0,
-                        'snapshots': space_obj.space.snapshots if space_obj.space else 0,
-                        'volumes': space_obj.space.unique if space_obj.space else 0,
-                        'data_reduction': space_obj.space.data_reduction if space_obj.space and space_obj.space.data_reduction else 1.0,
-                        'thin_provisioning': space_obj.space.thin_provisioning if space_obj.space and space_obj.space.thin_provisioning else 1.0,
-                        'total_reduction': space_obj.space.total_reduction if space_obj.space and space_obj.space.total_reduction else 1.0,
+                        'capacity': capacity,
+                        'total': total_physical,
+                        'snapshots': snapshots,
+                        'volumes': volumes,
+                        'data_reduction': data_reduction,
+                        'thin_provisioning': thin_provisioning,
+                        'total_reduction': total_reduction,
                     }
-                    LOG.debug('Space info for %s: capacity=%s, total=%s, data_reduction=%s' %
-                             (array_id, space_info['capacity'], space_info['total'], space_info['data_reduction']))
+                    LOG.debug('Space info for %s: capacity=%s, total=%s, snapshots=%s, volumes=%s, data_reduction=%s' %
+                             (array_id, space_info['capacity'], space_info['total'], space_info['snapshots'],
+                              space_info['volumes'], space_info['data_reduction']))
                     info.update(space_info)
 
                 info['status'] = 'Connected'
 
                 if detailed:
                     # Get performance info
+                    LOG.debug('Calling get_arrays_performance() for %s' % array_id)
                     perf_response = array.get_arrays_performance()
+                    LOG.debug('get_arrays_performance() returned status %d for %s' % (perf_response.status_code, array_id))
                     if perf_response.status_code == 200:
                         perf_obj = list(perf_response.items)[0]
                         perf_info = {
-                            'queue_depth': perf_obj.queue_depth if perf_obj.queue_depth else 0,
-                            'reads_per_sec': perf_obj.reads_per_sec if perf_obj.reads_per_sec else 0,
-                            'writes_per_sec': perf_obj.writes_per_sec if perf_obj.writes_per_sec else 0,
-                            'usec_per_read_op': perf_obj.usec_per_read_op if perf_obj.usec_per_read_op else 0,
-                            'usec_per_write_op': perf_obj.usec_per_write_op if perf_obj.usec_per_write_op else 0,
+                            'queue_depth': perf_obj.queue_depth if hasattr(perf_obj, 'queue_depth') and perf_obj.queue_depth else 0,
+                            'reads_per_sec': perf_obj.reads_per_sec if hasattr(perf_obj, 'reads_per_sec') and perf_obj.reads_per_sec else 0,
+                            'writes_per_sec': perf_obj.writes_per_sec if hasattr(perf_obj, 'writes_per_sec') and perf_obj.writes_per_sec else 0,
+                            'usec_per_read_op': perf_obj.usec_per_read_op if hasattr(perf_obj, 'usec_per_read_op') and perf_obj.usec_per_read_op else 0,
+                            'usec_per_write_op': perf_obj.usec_per_write_op if hasattr(perf_obj, 'usec_per_write_op') and perf_obj.usec_per_write_op else 0,
                         }
+                        LOG.debug('Performance info for %s: reads=%s, writes=%s, queue_depth=%s' %
+                                 (array_id, perf_info['reads_per_sec'], perf_info['writes_per_sec'], perf_info['queue_depth']))
                         info.update(perf_info)
 
                 stats = self.get_array_stats(array_id)

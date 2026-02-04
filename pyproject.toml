@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel", "pbr>=2.0.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,14 +10,13 @@ readme = "README.rst"
 authors = [
     {name = "Pure Storage", email = "openstack-dev@purestorage.com"}
 ]
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: OpenStack",
     "Framework :: Django",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -28,7 +27,6 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "py-pure-client>=1.47.0",
-    "pbr>=2.0.0",
 ]
 
 [project.urls]
@@ -36,4 +34,12 @@ Homepage = "https://github.com/PureStorage-OpenConnect/horizon-pure-ui"
 
 [tool.setuptools]
 packages = ["horizon_pure"]
+
+[tool.setuptools.package-data]
+horizon_pure = [
+    "enabled/*",
+    "local_settings.d/*",
+    "pure_panel/templates/**/*",
+    "pure_panel/static/**/*",
+]
 

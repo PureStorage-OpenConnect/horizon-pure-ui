@@ -33,13 +33,13 @@ dependencies = [
 Homepage = "https://github.com/PureStorage-OpenConnect/horizon-pure-ui"
 
 [tool.setuptools]
-packages = ["horizon_pure"]
+packages = {find = {}}
 
 [tool.setuptools.package-data]
-horizon_pure = [
+"*" = [
     "enabled/*",
     "local_settings.d/*",
-    "pure_panel/templates/**/*",
-    "pure_panel/static/**/*",
+    "templates/**/*",
+    "static/**/*",
 ]
 

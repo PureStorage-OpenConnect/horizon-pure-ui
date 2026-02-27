@@ -21,7 +21,7 @@ from openstack_dashboard.dashboards.admin import dashboard
 
 
 class PurePanel(horizon.Panel):
-    name = _("Pure Storage")
+    name = _("Everpure")
     slug = "pure_panel"
 
 dashboard.Admin.register(PurePanel)

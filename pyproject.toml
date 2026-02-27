@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "horizon-pure"
 version = "2.0.0"
-description = "A Pure Storage panel plugin for OpenStack Dashboard"
+description = "Am Everpure panel plugin for OpenStack Dashboard"
 readme = "README.rst"
 authors = [
-    {name = "Pure Storage", email = "openstack-dev@purestorage.com"}
+    {name = "Everpure", email = "openstack-dev@purestorage.com"}
 ]
 license = "Apache-2.0"
 classifiers = [

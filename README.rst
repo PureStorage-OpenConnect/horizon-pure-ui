@@ -1,5 +1,5 @@
-Pure Storage Horizon Plugin
----------------------------
+Everpure Horizon Plugin
+-----------------------
 
 .. image:: ./Horizon-Head.JPG
    :width: 300

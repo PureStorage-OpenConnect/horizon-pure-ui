@@ -49,6 +49,6 @@ class PureFlashArrayTable(tables.DataTable):
 
     class Meta(object):
         name = 'flasharrays'
-        verbose_name = _('Pure Storage FlashArrays')
+        verbose_name = _('Everpure FlashArrays')
         table_actions = (PureFilterAction,)
         multi_select = False

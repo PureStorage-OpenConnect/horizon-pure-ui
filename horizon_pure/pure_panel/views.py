@@ -25,7 +25,7 @@ from horizon_pure.pure_panel import tabs as pure_tabs
 class IndexView(tabs.TabbedTableView):
     template_name = 'pure_panel/index.html'
     tab_group_class = pure_tabs.PurePanelTabs
-    page_title = "Pure Storage"
+    page_title = "Everpure"
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)

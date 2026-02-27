@@ -6,7 +6,7 @@ Pure Storage Horizon Plugin
    :alt: Magnifying Image
 
 
-This OpenStack Dashboard plugin will add in deeper integration for Pure Storage
+This OpenStack Dashboard plugin will add in deeper integration for Everpure
 FlashArrays. It includes:
 
 * A new Admin panel that shows configured Arrays and their current states.
@@ -25,7 +25,7 @@ Horizon installation.
 * Python: 3.10, 3.11, or 3.12
 * Django: 4.2 or later
 * Horizon: From OpenStack 2024.2 or later
-* Pure Storage FlashArray with Purity 6.1.0 or later (REST API 2.x support required)
+* Everpure FlashArray with Purity 6.1.0 or later (REST API 2.x support required)
 * py-pure-client Python module (automatically installed with this package)
 
 
@@ -49,7 +49,7 @@ You will need to install and configure Horizon first.
 
 **Install from Source:**
 
-To install the Pure Horizon plugin package directly from source::
+To install the Everpure Horizon plugin package directly from source::
 
   git clone https://github.com/PureStorage-OpenConnect/horizon-pure-ui.git
   cd horizon-pure-ui
@@ -97,7 +97,7 @@ like::
         # Repeat for additional arrays
     ]
 
-The basic idea is that for each Cinder backend Pure Storage FlashArray you
+The basic idea is that for each Cinder backend Everpure FlashArray you
 provide a mapping and credential information. An automated process for performing this is
 in development.
 
@@ -140,16 +140,16 @@ For example::
 
   sudo systemctl restart apache2
 
-Using the Pure Horizon GUI
+Using the Everpure Horizon GUI
 --------------------------
 
-After installing the GUI plugin and restarting your httpd service, you can access the new Pure related information in two ways:
+After installing the GUI plugin and restarting your httpd service, you can access the new everpure related information in two ways:
 
-1. As an Administrator by navigating to **Admin** -> **System** -> **Pure Storage** where you will see a panel similar to this:
+1. As an Administrator by navigating to **Admin** -> **System** -> **Everpure** where you will see a panel similar to this:
 
    .. image:: ./Horizon-1.JPG
      :width: 400
-     :alt: Main Pure Panel
+     :alt: Main Everpure Panel
 
     
 * Selecting the ``Array Name`` will open a new browser window to the FlashArray Logon GUI.
@@ -161,7 +161,7 @@ After installing the GUI plugin and restarting your httpd service, you can acces
      :alt: Detailed Array Panel
 
 2. As a user from the Project level by navigating to **Project** -> **Volumes** -> **Volumes** and then selecting one of the volumes
-   provided by a Pure Storage Cinder driver. This will give an enhanced view of the volume with additional **Usage** information.
+   provided by a Everpure Cinder driver. This will give an enhanced view of the volume with additional **Usage** information.
    An example of this is:
 
    .. image:: ./Horizon-2.JPG
@@ -171,7 +171,7 @@ After installing the GUI plugin and restarting your httpd service, you can acces
 Uninstalling
 ------------
 
-To uninstall the Pure Horizon GUI run::
+To uninstall the Everpure Horizon GUI run::
 
   sudo pip uninstall horizon-pure
 

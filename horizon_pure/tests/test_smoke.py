@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Pure Storage, Inc.
+# Copyright 2026 Everpure, Inc.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,10 +13,18 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from horizon.test import helpers as test
+from django.urls import reverse
+
+from openstack_dashboard.test import helpers as test
 
 
-class PurePanelTests(test.TestCase):
-    # Unit tests for pure_panel.
-    def test_me(self):
-        self.assertTrue(1 + 1 == 2)
+class PanelSmokeTests(test.BaseAdminViewTests):
+
+    def test_panel_index_url_resolves(self):
+        self.assertEqual(reverse('horizon:admin:pure_panel:index'),
+                         '/admin/pure_panel/')
+
+    def test_flasharray_detail_url_resolves(self):
+        url = reverse('horizon:admin:pure_panel:flasharrays:detail',
+                      kwargs={'backend_id': 'pure-iscsi'})
+        self.assertEqual(url, '/admin/pure_panel/flasharrays/pure-iscsi/')

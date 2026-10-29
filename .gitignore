@@ -1,2 +1,9 @@
 .idea
 *.pyc
+__pycache__/
+*.egg-info
+horizon_pure.egg-info/
+.eggs/
+.tox/
+build/
+dist/

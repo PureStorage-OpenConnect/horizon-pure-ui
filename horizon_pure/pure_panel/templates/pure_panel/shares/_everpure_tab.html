@@ -1,0 +1,179 @@
+{% load i18n sizeformat %}
+{% comment %}
+Everpure tab on the manila-ui share detail page. Context: ``share`` and
+``info`` (horizon_pure.api.pure_manila.get_share_info). Sizes are MiB and
+are rendered with mb_float_format; counts are plain integers; ``created``
+values are aware datetimes. Array identity (name, target, Purity version,
+backend name, parent file system) and the error detail of a failed lookup
+(which names backends, arrays and objects tried) are shown to admins only.
+{% endcomment %}
+
+<div class="detail">
+{% if not info.configured %}
+  <p class="alert alert-info">{% trans "No Everpure Manila backends are configured." %}</p>
+{% elif not info.found %}
+  <div class="alert alert-warning">
+    <p>{% trans "No matching object was found for this share on the configured Everpure arrays." %}</p>
+    {% if info.is_admin and info.error %}
+    <p>{{ info.error }}</p>
+    {% endif %}
+    {% if info.is_admin and info.candidate_names %}
+    <p>{% trans "File system names tried:" %} {{ info.candidate_names|join:", " }}</p>
+    {% endif %}
+  </div>
+{% elif info.kind == 'fb' %}
+  {% for fs in info.file_systems %}
+  {% if info.is_admin %}
+  <h4>{% trans "Array" %}</h4>
+  <hr class="header_rule">
+  <dl class="dl-horizontal">
+    <dt>{% trans "Array Name" %}</dt>
+    <dd><a href="https://{{ fs.target }}/" target="_blank">{{ fs.array_name }}</a></dd>
+    <dt>{% trans "Purity Version" %}</dt>
+    <dd>{{ fs.version }}</dd>
+    <dt>{% trans "Model" %}</dt>
+    <dd>{{ fs.model }}</dd>
+    <dt>{% trans "Backend Name" %}</dt>
+    <dd>{{ fs.backend_name }}</dd>
+  </dl>
+  {% endif %}
+
+  <h4>{% trans "Share on Array" %}</h4>
+  <hr class="header_rule">
+  <dl class="dl-horizontal">
+    <dt>{% trans "File System" %}</dt>
+    <dd>{{ fs.name }}</dd>
+    <dt>{% trans "Provisioned" %}</dt>
+    <dd>{{ fs.provisioned|mb_float_format }}</dd>
+    <dt>{% trans "Used (logical)" %}</dt>
+    <dd>{{ fs.used|mb_float_format }}</dd>
+    <dt>{% trans "Used (physical)" %}</dt>
+    <dd>{{ fs.total_physical|mb_float_format }}</dd>
+    <dt>{% trans "Unique" %}</dt>
+    <dd>{{ fs.unique|mb_float_format }}</dd>
+    <dt>{% trans "Snapshot Space" %}</dt>
+    <dd>{{ fs.snapshots|mb_float_format }}</dd>
+    <dt>{% trans "Data Reduction" %}</dt>
+    <dd>{{ fs.data_reduction }}</dd>
+    <dt>{% trans "Hard Limit" %}</dt>
+    <dd>{{ fs.hard_limit|yesno|capfirst }}</dd>
+    <dt>{% trans "NFS v3" %}</dt>
+    <dd>{{ fs.nfs_v3|yesno|capfirst }}</dd>
+    <dt>{% trans "NFS v4.1" %}</dt>
+    <dd>{{ fs.nfs_v41|yesno|capfirst }}</dd>
+    <dt>{% trans "NFS Rules" %}</dt>
+    <dd>{{ fs.nfs_rules|default:"-" }}</dd>
+    <dt>{% trans "Snapshots" %}</dt>
+    <dd>{{ fs.snapshot_count }}</dd>
+    <dt>{% trans "Created" %}</dt>
+    <dd>{% if fs.created %}{{ fs.created|date:"DATETIME_FORMAT" }}{% else %}-{% endif %}</dd>
+  </dl>
+
+  <h4>{% trans "Performance" %}</h4>
+  <hr class="header_rule">
+  <dl class="dl-horizontal">
+    <dt>{% trans "Read IOPS" %}</dt>
+    <dd>{{ fs.reads_per_sec|floatformat:2 }}</dd>
+    <dt>{% trans "Write IOPS" %}</dt>
+    <dd>{{ fs.writes_per_sec|floatformat:2 }}</dd>
+    <dt>{% trans "Read Bandwidth" %}</dt>
+    <dd>{{ fs.output_per_sec|mb_float_format }}/s</dd>
+    <dt>{% trans "Write Bandwidth" %}</dt>
+    <dd>{{ fs.input_per_sec|mb_float_format }}/s</dd>
+    <dt>{% trans "Read Latency (µs)" %}</dt>
+    <dd>{{ fs.usec_per_read_op|floatformat:2 }}</dd>
+    <dt>{% trans "Write Latency (µs)" %}</dt>
+    <dd>{{ fs.usec_per_write_op|floatformat:2 }}</dd>
+  </dl>
+  {% endfor %}
+{% else %}
+  {% with directory=info.directory %}
+  {% if info.is_admin %}
+  <h4>{% trans "Array" %}</h4>
+  <hr class="header_rule">
+  <dl class="dl-horizontal">
+    <dt>{% trans "Array Name" %}</dt>
+    <dd><a href="https://{{ directory.target }}/" target="_blank">{{ directory.array_name }}</a></dd>
+    <dt>{% trans "Purity Version" %}</dt>
+    <dd>{{ directory.version }}</dd>
+    <dt>{% trans "Model" %}</dt>
+    <dd>{{ directory.model }}</dd>
+    <dt>{% trans "Backend Name" %}</dt>
+    <dd>{{ directory.backend_name }}</dd>
+    <dt>{% trans "Parent File System" %}</dt>
+    <dd>{{ directory.parent_fs }}</dd>
+  </dl>
+  {% endif %}
+
+  <h4>{% trans "Share on Array" %}</h4>
+  <hr class="header_rule">
+  <dl class="dl-horizontal">
+    <dt>{% trans "Managed Directory" %}</dt>
+    <dd>{% if info.is_admin %}{{ directory.name }}{% else %}{{ directory.directory_name }}{% endif %}</dd>
+    <dt>{% trans "Quota Limit" %}</dt>
+    <dd>{% if directory.quota_limit is None %}{% trans "No quota" %}{% else %}{{ directory.quota_limit|mb_float_format }}{% endif %}</dd>
+    <dt>{% trans "Quota Usage" %}</dt>
+    <dd>{{ directory.quota_usage|mb_float_format }}</dd>
+    <dt>{% trans "Quota Used (%)" %}</dt>
+    <dd>{% if directory.percentage_used is None %}-{% else %}{{ directory.percentage_used|floatformat:1 }}{% endif %}</dd>
+    <dt>{% trans "Quota Enforced" %}</dt>
+    <dd>{{ directory.quota_enforced|yesno|capfirst }}</dd>
+    <dt>{% trans "Used (physical)" %}</dt>
+    <dd>{{ directory.used|mb_float_format }}</dd>
+    <dt>{% trans "Used (logical)" %}</dt>
+    <dd>{{ directory.virtual|mb_float_format }}</dd>
+    <dt>{% trans "Unique" %}</dt>
+    <dd>{{ directory.unique|mb_float_format }}</dd>
+    <dt>{% trans "Snapshot Space" %}</dt>
+    <dd>{{ directory.snapshots|mb_float_format }}</dd>
+    <dt>{% trans "Data Reduction" %}</dt>
+    <dd>{{ directory.data_reduction }}</dd>
+    <dt>{% trans "NFS Client Rules" %}</dt>
+    <dd>
+      {% for rule in directory.nfs_rules %}
+      <div>{{ rule.client }} ({{ rule.permission }}{% if rule.access %}, {{ rule.access }}{% endif %}){% if rule.nfs_version %}: {{ rule.nfs_version|join:", " }}{% endif %}</div>
+      {% empty %}
+      <em>{% trans "None" %}</em>
+      {% endfor %}
+    </dd>
+    <dt>{% trans "Exports" %}</dt>
+    <dd>
+      {% for export in directory.exports %}
+      <div>{{ export.export_name }} ({% if export.enabled %}{% trans "enabled" %}{% else %}{% trans "disabled" %}{% endif %})</div>
+      {% empty %}
+      <em>{% trans "None" %}</em>
+      {% endfor %}
+    </dd>
+    <dt>{% trans "Snapshots" %}</dt>
+    <dd>{{ directory.snapshot_count }}</dd>
+    {% if directory.snapshot_list %}
+    <dt>{% trans "Snapshot Suffixes" %}</dt>
+    <dd>
+      {% for snap in directory.snapshot_list %}
+      <div>{{ snap.suffix }}{% if snap.created %} ({{ snap.created|date:"DATETIME_FORMAT" }}){% endif %}</div>
+      {% endfor %}
+    </dd>
+    {% endif %}
+    <dt>{% trans "Created" %}</dt>
+    <dd>{% if directory.created %}{{ directory.created|date:"DATETIME_FORMAT" }}{% else %}-{% endif %}</dd>
+  </dl>
+
+  <h4>{% trans "Performance" %}</h4>
+  <hr class="header_rule">
+  <dl class="dl-horizontal">
+    <dt>{% trans "Read IOPS" %}</dt>
+    <dd>{{ directory.reads_per_sec|floatformat:2 }}</dd>
+    <dt>{% trans "Write IOPS" %}</dt>
+    <dd>{{ directory.writes_per_sec|floatformat:2 }}</dd>
+    <dt>{% trans "Read Bandwidth" %}</dt>
+    <dd>{{ directory.output_per_sec|mb_float_format }}/s</dd>
+    <dt>{% trans "Write Bandwidth" %}</dt>
+    <dd>{{ directory.input_per_sec|mb_float_format }}/s</dd>
+    <dt>{% trans "Read Latency (µs)" %}</dt>
+    <dd>{{ directory.usec_per_read_op|floatformat:2 }}</dd>
+    <dt>{% trans "Write Latency (µs)" %}</dt>
+    <dd>{{ directory.usec_per_write_op|floatformat:2 }}</dd>
+  </dl>
+  {% endwith %}
+{% endif %}
+</div>

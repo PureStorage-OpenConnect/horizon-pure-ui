@@ -1,1 +1,3 @@
-py-pure-client>=1.47.0
+py-pure-client>=1.58.0
+# Optional: manila-ui adds the Everpure tab to the Manila share detail pages
+# (pip install "horizon-pure[manila]").

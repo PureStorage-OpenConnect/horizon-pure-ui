@@ -20,6 +20,6 @@ from horizon_pure.pure_panel.flasharrays import views
 
 urlpatterns = [
     re_path(r'^(?P<backend_id>[^/]+)/$',
-        views.DetailView.as_view(),
-        name='detail'),
+            views.DetailView.as_view(),
+            name='detail'),
 ]

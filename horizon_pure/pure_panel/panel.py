@@ -24,4 +24,5 @@ class PurePanel(horizon.Panel):
     name = _("Everpure")
     slug = "pure_panel"
 
+
 dashboard.Admin.register(PurePanel)

@@ -87,10 +87,10 @@
     <dd>{{ array.reads_per_sec|floatformat:2 }}</dd>
     <dt>{% trans "Write IOPS" %}</dt>
     <dd>{{ array.writes_per_sec|floatformat:2 }}</dd>
-    <dt>{% trans "Read/sec" %}</dt>
-    <dd>{{ array.output_per_sec|mb_float_format }}</dd>
-    <dt>{% trans "Write/sec" %}</dt>
-    <dd>{{ array.input_per_sec|mb_float_format }}</dd>
+    <dt>{% trans "Read Bandwidth" %}</dt>
+    <dd>{{ array.output_per_sec|mb_float_format }}/s</dd>
+    <dt>{% trans "Write Bandwidth" %}</dt>
+    <dd>{{ array.input_per_sec|mb_float_format }}/s</dd>
     <dt>{% trans "Read Latency (µs)" %}</dt>
     <dd>{{ array.usec_per_read_op|floatformat:2 }}</dd>
     <dt>{% trans "Write Latency (µs)" %}</dt>

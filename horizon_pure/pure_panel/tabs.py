@@ -13,14 +13,45 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+"""Tabs of the Everpure admin panel: one table of backends per array kind.
+
+A tab is shown only when its kind is configured (``allowed`` asks the
+registry). The API objects are created inside the data methods, never at
+import time, because building an array client performs network I/O.
+"""
+
+import logging
+
 from django.utils.translation import gettext_lazy as _
 
 from horizon import exceptions
 from horizon import tabs
-import re
 
+from horizon_pure.api import pure_fa_files
 from horizon_pure.api import pure_flash_array
+from horizon_pure.api import pure_flash_blade
+from horizon_pure.api import registry
 from horizon_pure.pure_panel import tables
+
+
+LOG = logging.getLogger(__name__)
+
+
+def array_rows(api, backends):
+    """``api.get_array_info`` for each backend name; failures are skipped.
+
+    The APIs report an unusable array as an 'Error: ...' row themselves,
+    so an exception here is logged in full and must not lose the other
+    rows.
+    """
+    rows = []
+    for backend in backends:
+        try:
+            rows.append(api.get_array_info(backend))
+        except Exception:
+            LOG.exception('Failed to get array info for %s', backend)
+    LOG.debug('Returning %d of %d arrays', len(rows), len(backends))
+    return rows
 
 
 class FlashArrayTab(tabs.TableTab):
@@ -29,49 +60,62 @@ class FlashArrayTab(tabs.TableTab):
     table_classes = (tables.PureFlashArrayTable,)
     template_name = "horizon/common/_detail_table.html"
     preload = False
-    array_api = None
 
-    def has_more_data(self, table):
-        return self._has_more
+    def allowed(self, request):
+        return bool(registry.entries(service='cinder', kind='fa'))
 
     def get_flasharrays_data(self):
-        import logging
-        LOG = logging.getLogger(__name__)
-
         try:
-            # TODO: Add pagination
-            self._has_more = False
+            api = pure_flash_array.FlashArrayAPI()
+            return array_rows(api, api.get_array_list())
+        except Exception as exc:
+            exceptions.handle(self.request,
+                              _('Unable to retrieve FlashArrays: %s') % exc)
+            return []
 
-            if not self.array_api:
-                LOG.debug('Initializing FlashArrayAPI')
-                self.array_api = pure_flash_array.FlashArrayAPI()
 
-            arrays = []
-            backends = self.array_api.get_array_list()
-            LOG.debug('Found %d backends: %s' % (len(backends), backends))
+class FlashBladeTab(tabs.TableTab):
+    name = _("FlashBlades")
+    slug = "flashblade_tab"
+    table_classes = (tables.PureFlashBladeTable,)
+    template_name = "horizon/common/_detail_table.html"
+    preload = False
 
-            for be in backends:
-                LOG.debug('Getting array info for backend: %s' % be)
-                try:
-                    array_info = self.array_api.get_array_info(be)
-                    LOG.debug('Array info for %s: %s' % (be, str(array_info)))
-                    arrays.append(array_info)
-                except Exception as e:
-                    LOG.exception('Failed to get array info for %s: %s' % (be, str(e)))
-                    # Continue to next array instead of failing completely
-                    continue
+    def allowed(self, request):
+        return bool(registry.entries(service='manila', kind='fb'))
 
-            LOG.debug('Returning %d arrays' % len(arrays))
-            return arrays
+    def get_flashblades_data(self):
+        try:
+            api = pure_flash_blade.FlashBladeAPI()
+            return array_rows(api, api.get_backend_list())
+        except Exception as exc:
+            exceptions.handle(self.request,
+                              _('Unable to retrieve FlashBlades: %s') % exc)
+            return []
 
-        except Exception as e:
-            LOG.exception('Exception in get_flasharrays_data: %s' % str(e))
-            error_message = _('Unable to get arrays: %s') % str(e)
-            exceptions.handle(self.request, error_message)
+
+class FlashArrayFilesTab(tabs.TableTab):
+    name = _("FlashArray Files")
+    slug = "fafiles_tab"
+    table_classes = (tables.PureFlashArrayFilesTable,)
+    template_name = "horizon/common/_detail_table.html"
+    preload = False
+
+    def allowed(self, request):
+        return bool(registry.entries(service='manila', kind='fa'))
+
+    def get_fafiles_data(self):
+        try:
+            api = pure_fa_files.FlashArrayFilesAPI()
+            return array_rows(api, api.get_backend_list())
+        except Exception as exc:
+            exceptions.handle(
+                self.request,
+                _('Unable to retrieve FlashArray Files backends: %s') % exc)
             return []
 
 
 class PurePanelTabs(tabs.TabGroup):
     slug = "pure_panel_tabs"
-    tabs = (FlashArrayTab,)
+    tabs = (FlashArrayTab, FlashBladeTab, FlashArrayFilesTab)
     sticky = True

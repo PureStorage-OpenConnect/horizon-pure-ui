@@ -4,13 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "horizon-pure"
-version = "2.0.0"
-description = "Am Everpure panel plugin for OpenStack Dashboard"
+version = "2.1.0"
+description = "An Everpure panel plugin for OpenStack Dashboard"
 readme = "README.rst"
 authors = [
     {name = "Everpure", email = "openstack-dev@purestorage.com"}
 ]
-license = "Apache-2.0"
+# The table form builds with every setuptools >= 61 (the SPDX string form
+# needs setuptools >= 77), so there is deliberately no "License ::"
+# classifier below.
+license = {text = "Apache-2.0"}
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: OpenStack",
@@ -26,20 +29,35 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "py-pure-client>=1.47.0",
+    "py-pure-client>=1.58.0",
 ]
+
+[project.optional-dependencies]
+# Pulls in manila-ui so the Everpure tab on the Manila share detail pages is
+# available. The plugin itself imports manila-ui lazily and works without it.
+manila = ["manila-ui"]
 
 [project.urls]
 Homepage = "https://github.com/PureStorage-OpenConnect/horizon-pure-ui"
 
-[tool.setuptools]
-packages = {find = {}}
+[tool.setuptools.packages.find]
+# Only the plugin's own packages. Without the include list a stale build/
+# or dist/ directory in the source tree is discovered as a namespace package
+# and ends up inside the wheel.
+include = ["horizon_pure", "horizon_pure.*"]
 
 [tool.setuptools.package-data]
 "*" = [
     "enabled/*",
     "local_settings.d/*",
+    # "**" needs setuptools >= 62.3; the explicit depths keep the templates
+    # in the wheel on older setuptools as well. The tree is
+    #   templates/pure_panel/index.html
+    #   templates/pure_panel/{flasharrays,flashblades,fafiles,shares}/*.html
+    #   templates/project/volumes/*.html
     "templates/**/*",
+    "templates/*/*.html",
+    "templates/*/*/*.html",
+    "templates/*/*/*/*.html",
     "static/**/*",
 ]
-

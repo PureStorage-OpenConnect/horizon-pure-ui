@@ -27,6 +27,8 @@ ADD_PANEL = 'horizon_pure.pure_panel.panel.PurePanel'
 
 ADD_INSTALLED_APPS = ['horizon_pure.pure_panel']
 
-# override default behavior for admin->volumes
+# Customization module: overrides the volume detail views (Admin and
+# Project) and, when manila-ui is installed, adds the Everpure tab to the
+# Manila share detail views.
 UPDATE_HORIZON_CONFIG = \
     {'customization_module': 'horizon_pure.overrides', }

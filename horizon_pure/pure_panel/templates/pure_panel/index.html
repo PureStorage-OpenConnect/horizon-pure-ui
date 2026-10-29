@@ -1,50 +1,93 @@
 {% extends 'base.html' %}
 {% load i18n horizon humanize sizeformat %}
-{% block title %}{% trans "Pure Storage" %}{% endblock %}
+{% block title %}{% trans "Everpure" %}{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_page_header.html" with title=_("Pure Storage") %}
+  {% include "horizon/common/_page_header.html" with title=_("Everpure") %}
 {% endblock page_header %}
 
 {% block main %}
-<div class="quota-dynamic">
+{% if fa_stats %}
+<div class="quota-dynamic clearfix">
   <h3>{% trans "FlashArray Summary" %}</h3>
     <div class="col-sm-4 d3_quota_bar">
-      <div class="pie-chart-usage" data-used="{% widthratio stats.total_used stats.total_available 100 %}"></div>
+      <div class="pie-chart-usage" data-used="{% widthratio fa_stats.total_used fa_stats.total_available 100 %}"></div>
       <div class="h5">{% trans "Capacity Usage" %}</div>
       <div class="h6">
-        {% blocktrans with used=stats.total_used|mb_float_format available=stats.total_available|mb_float_format %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+        {% blocktrans with used=fa_stats.total_used|mb_float_format available=fa_stats.total_available|mb_float_format %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
       </div>
     </div>
     <div class="col-sm-4 d3_quota_bar">
-      <div class="pie-chart-usage" data-used="{% widthratio stats.total_volume_count stats.available_volume_count 100 %}"></div>
+      <div class="pie-chart-usage" data-used="{% widthratio fa_stats.total_volume_count fa_stats.available_volume_count 100 %}"></div>
       <div class="h5">{% trans "Volume Usage" %}</div>
       <div class="h6">
-         {% blocktrans with used=stats.total_volume_count|intcomma available=stats.available_volume_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+         {% blocktrans with used=fa_stats.total_volume_count|intcomma available=fa_stats.available_volume_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
       </div>
     </div>
     <div class="col-sm-4 d3_quota_bar">
-      <div class="pie-chart-usage" data-used="{% widthratio stats.total_snapshot_count stats.available_snapshot_count 100 %}"></div>
+      <div class="pie-chart-usage" data-used="{% widthratio fa_stats.total_snapshot_count fa_stats.available_snapshot_count 100 %}"></div>
       <div class="h5">{% trans "Snapshot Usage" %}</div>
       <div class="h6">
-         {% blocktrans with used=stats.total_snapshot_count|intcomma available=stats.available_snapshot_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+         {% blocktrans with used=fa_stats.total_snapshot_count|intcomma available=fa_stats.available_snapshot_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
       </div>
     </div>
     <div class="col-sm-4 d3_quota_bar">
-      <div class="pie-chart-usage" data-used="{% widthratio stats.total_host_count stats.available_host_count 100 %}"></div>
+      <div class="pie-chart-usage" data-used="{% widthratio fa_stats.total_host_count fa_stats.available_host_count 100 %}"></div>
       <div class="h5">{% trans "Host Usage" %}</div>
       <div class="h6">
-         {% blocktrans with used=stats.total_host_count|intcomma available=stats.available_host_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+         {% blocktrans with used=fa_stats.total_host_count|intcomma available=fa_stats.available_host_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
       </div>
     </div>
     <div class="col-sm-4 d3_quota_bar">
-      <div class="pie-chart-usage" data-used="{% widthratio stats.total_pgroup_count stats.available_pgroup_count 100 %}"></div>
+      <div class="pie-chart-usage" data-used="{% widthratio fa_stats.total_pgroup_count fa_stats.available_pgroup_count 100 %}"></div>
       <div class="h5">{% trans "Protection Group Usage" %}</div>
       <div class="h6">
-         {% blocktrans with used=stats.total_pgroup_count|intcomma available=stats.available_pgroup_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+         {% blocktrans with used=fa_stats.total_pgroup_count|intcomma available=fa_stats.available_pgroup_count|intcomma %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
       </div>
     </div>
 </div>
+{% endif %}
+{% if fb_stats %}
+<div class="quota-dynamic clearfix">
+  <h3>{% trans "FlashBlade Summary" %}</h3>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio fb_stats.total_used fb_stats.total_available 100 %}"></div>
+      <div class="h5">{% trans "Capacity Usage" %}</div>
+      <div class="h6">
+        {% blocktrans with used=fb_stats.total_used|mb_float_format available=fb_stats.total_available|mb_float_format %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="h5">{% trans "File Systems" %}</div>
+      <div class="h6">{{ fb_stats.total_file_system_count|intcomma }}</div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="h5">{% trans "Snapshots" %}</div>
+      <div class="h6">{{ fb_stats.total_snapshot_count|intcomma }}</div>
+    </div>
+</div>
+{% endif %}
+{% if fafiles_stats %}
+<div class="quota-dynamic clearfix">
+  <h3>{% trans "FlashArray Files Summary" %}</h3>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="pie-chart-usage" data-used="{% widthratio fafiles_stats.total_used fafiles_stats.total_available 100 %}"></div>
+      <div class="h5">{% trans "Capacity Usage" %}</div>
+      <div class="h6">
+        {% blocktrans with used=fafiles_stats.total_used|mb_float_format available=fafiles_stats.total_available|mb_float_format %}Used <span> {{ used }} </span> of <span> {{ available }} </span>{% endblocktrans %}
+      </div>
+    </div>
+    <div class="col-sm-4 d3_quota_bar">
+      <div class="h5">{% trans "Managed Directories" %}</div>
+      <div class="h6">{{ fafiles_stats.total_directory_count|intcomma }}</div>
+    </div>
+</div>
+{% endif %}
+{% if not fa_stats and not fb_stats and not fafiles_stats %}
+<div class="alert alert-info">
+  {% trans "No Everpure backends are configured. Add PURE_FLASH_ARRAYS, PURE_FLASH_BLADES or PURE_FLASH_ARRAY_FILES to the Horizon settings." %}
+</div>
+{% endif %}
 <div class="row">
    <div class="col-sm-12">
    {{ tab_group.render }}

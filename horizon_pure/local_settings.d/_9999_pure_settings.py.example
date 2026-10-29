@@ -1,17 +1,104 @@
-# Modify to map Pure Storage Arrays to Cinder backends
-# The config options should align with the entries in cinder.conf
+# Copyright 2026 Everpure, Inc.
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
 
+# Everpure settings for the OpenStack Dashboard (Horizon) plugin.
+#
+# Each list maps Everpure arrays to the OpenStack backends that use them.
+# The values must line up with the backend sections in cinder.conf and
+# manila.conf. Replace every REPLACE-WITH-API-TOKEN with a real REST API
+# token for that array and keep this file readable only by the Horizon
+# service account. Leave a list empty when you have no backends of that
+# kind; the matching panel tab is then not shown.
+
+# FlashArrays used by Cinder volume backends.
 PURE_FLASH_ARRAYS = [
     {
-        # Virtual IP address or FQDN for Flash Array
-        'san_ip': '10.231.128.11',
+        # Management VIP or FQDN of the FlashArray; the same value as
+        # san_ip in the cinder.conf backend section.
+        'san_ip': '10.0.0.10',
 
-        # API Token for FlashArray
-        'api_token': '661f9687-0b1e-7b0d-e07d-1e776d50f9eb',
+        # REST API token for the FlashArray; the same value as
+        # pure_api_token in cinder.conf.
+        'api_token': 'REPLACE-WITH-API-TOKEN',
 
-        # The backend name for the FlashArray, typically this is the value
-        # set in the "enabled_backends" section of cinder.conf
+        # The backend section name, as listed in enabled_backends in
+        # cinder.conf.
         'backend_name': 'pure-iscsi',
+
+        # Optional. Verify the array's TLS certificate (default False).
+        # 'verify_ssl': False,
+
+        # Optional. CA bundle (PEM) used to verify the array's certificate;
+        # setting it turns verification on.
+        # 'ca_cert': '/etc/ssl/certs/pure.pem',
     },
-    # Repeat for additional arrays
+    # Repeat for additional arrays.
 ]
+
+# FlashBlades used by Manila share backends.
+PURE_FLASH_BLADES = [
+    {
+        # Management VIP or FQDN of the FlashBlade; the same value as
+        # flashblade_mgmt_vip in the manila.conf backend section.
+        'mgmt_ip': '10.0.0.20',
+
+        # REST API token; the same value as flashblade_api in manila.conf.
+        'api_token': 'REPLACE-WITH-API-TOKEN',
+
+        # The backend section name, as listed in enabled_share_backends in
+        # manila.conf.
+        'backend_name': 'flashblade',
+
+        # Optional, as for PURE_FLASH_ARRAYS.
+        # 'verify_ssl': False,
+        # 'ca_cert': None,
+    },
+]
+
+# FlashArrays used by Manila share backends (FlashArray Files driver).
+PURE_FLASH_ARRAY_FILES = [
+    {
+        # Management VIP or FQDN of the FlashArray; the same value as
+        # flasharray_mgmt_vip in the manila.conf backend section.
+        'san_ip': '10.0.0.10',
+
+        # REST API token; the same value as flasharray_api in manila.conf.
+        'api_token': 'REPLACE-WITH-API-TOKEN',
+
+        # The backend section name, as listed in enabled_share_backends in
+        # manila.conf.
+        'backend_name': 'flasharray-files',
+
+        # Parent file system that holds the Manila managed directories.
+        # Must equal pure_cluster_id in the manila.conf backend section
+        # (driver default: openstack).
+        'parent_fs': 'openstack',
+
+        # Optional, as for PURE_FLASH_ARRAYS.
+        # 'verify_ssl': False,
+        # 'ca_cert': None,
+    },
+]
+
+# Mirror share_name_template from manila.conf. FlashBlade file systems are
+# named (template % share instance id) + '-manila'; FlashArray Files
+# directories are always share-<share id>-manila.
+PURE_MANILA_SHARE_NAME_TEMPLATE = 'share-%s'
+
+# Seconds allowed for each REST call to an array, and how many times a
+# failed call is retried. An unreachable array is shown as an error row
+# and not retried for 60 seconds.
+PURE_API_TIMEOUT = 10
+PURE_API_RETRIES = 1

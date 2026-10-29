@@ -246,7 +246,7 @@ class ErrorStateArray(object):
 
 
 class FlashArrayAPI(object):
-    """Queries for the Cinder FlashArray backends in PURE_FLASH_ARRAYS."""
+    """Queries for the Cinder FlashArray backends in PURE_FLASHARRAYS."""
 
     get_array_summary = staticmethod(get_array_summary)
 
@@ -260,7 +260,7 @@ class FlashArrayAPI(object):
         """The client for backend ``array_id``, or an ErrorStateArray."""
         entry = registry.find('cinder', array_id)
         if entry is None:
-            LOG.debug('Backend %s is not configured in PURE_FLASH_ARRAYS',
+            LOG.debug('Backend %s is not configured in PURE_FLASHARRAYS',
                       array_id)
             return ErrorStateArray(array_id, 'Not in config')
         try:

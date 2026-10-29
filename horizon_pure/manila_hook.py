@@ -23,7 +23,7 @@ module simply skips the hook.
 Importing the module appends :class:`EverpureShareTab` to both the admin
 and the project ``ShareDetailTabs`` groups of manila-ui 16 (``install()``
 is idempotent). The tab is only offered when a Manila backend is configured
-(``PURE_FLASH_BLADES`` / ``PURE_FLASH_ARRAY_FILES``) and loads on demand,
+(``PURE_FLASHBLADES`` / ``PURE_FLASHARRAY_FILES``) and loads on demand,
 so an unreachable array never slows the share detail page itself down.
 """
 

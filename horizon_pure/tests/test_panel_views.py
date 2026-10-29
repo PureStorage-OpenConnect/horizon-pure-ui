@@ -177,8 +177,8 @@ def _share_instance_url(instance_id):
         return None
 
 
-@override_settings(PURE_FLASH_ARRAYS=ARRAYS, PURE_FLASH_BLADES=BLADES,
-                   PURE_FLASH_ARRAY_FILES=FILES)
+@override_settings(PURE_FLASHARRAYS=ARRAYS, PURE_FLASHBLADES=BLADES,
+                   PURE_FLASHARRAY_FILES=FILES)
 class PanelViewTests(test.BaseAdminViewTests):
 
     def setUp(self):
@@ -305,8 +305,8 @@ class PanelViewTests(test.BaseAdminViewTests):
     def test_index_unconfigured_kinds_are_none(self):
         self.fb_api.get_total_stats.return_value = {}
         self.fafiles_api.get_total_stats.return_value = {}
-        with override_settings(PURE_FLASH_BLADES=[],
-                               PURE_FLASH_ARRAY_FILES=[]):
+        with override_settings(PURE_FLASHBLADES=[],
+                               PURE_FLASHARRAY_FILES=[]):
             res = self.client.get(INDEX_URL)
 
         self.assertEqual(200, res.status_code)
@@ -324,8 +324,8 @@ class PanelViewTests(test.BaseAdminViewTests):
     def test_index_nothing_configured(self):
         for api in (self.fa_api, self.fb_api, self.fafiles_api):
             api.get_total_stats.return_value = {}
-        with override_settings(PURE_FLASH_ARRAYS=[], PURE_FLASH_BLADES=[],
-                               PURE_FLASH_ARRAY_FILES=[]):
+        with override_settings(PURE_FLASHARRAYS=[], PURE_FLASHBLADES=[],
+                               PURE_FLASHARRAY_FILES=[]):
             res = self.client.get(INDEX_URL)
 
         self.assertEqual(200, res.status_code)
@@ -353,17 +353,17 @@ class PanelViewTests(test.BaseAdminViewTests):
         self.assertEqual(['flasharray_tab', 'flashblade_tab', 'fafiles_tab'],
                          [tab.slug for tab in group.get_tabs()])
 
-        with override_settings(PURE_FLASH_BLADES=[]):
+        with override_settings(PURE_FLASHBLADES=[]):
             tab = pure_tabs.FlashBladeTab(group, self.request)
             self.assertFalse(tab.allowed(self.request))
             self.assertEqual(
                 ['flasharray_tab', 'fafiles_tab'],
                 [t.slug for t in
                  pure_tabs.PurePanelTabs(self.request).get_tabs()])
-        with override_settings(PURE_FLASH_ARRAY_FILES=[]):
+        with override_settings(PURE_FLASHARRAY_FILES=[]):
             tab = pure_tabs.FlashArrayFilesTab(group, self.request)
             self.assertFalse(tab.allowed(self.request))
-        with override_settings(PURE_FLASH_ARRAYS=[]):
+        with override_settings(PURE_FLASHARRAYS=[]):
             tab = pure_tabs.FlashArrayTab(group, self.request)
             self.assertFalse(tab.allowed(self.request))
         # Nothing above touched an API object or a client.

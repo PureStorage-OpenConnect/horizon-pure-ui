@@ -54,9 +54,9 @@ DEFAULT_RETRIES = 1
 
 # (setting name, service, kind), in the order entries() reports them.
 _SETTINGS = (
-    ('PURE_FLASH_ARRAYS', 'cinder', 'fa'),
-    ('PURE_FLASH_BLADES', 'manila', 'fb'),
-    ('PURE_FLASH_ARRAY_FILES', 'manila', 'fa'),
+    ('PURE_FLASHARRAYS', 'cinder', 'fa'),
+    ('PURE_FLASHBLADES', 'manila', 'fb'),
+    ('PURE_FLASHARRAY_FILES', 'manila', 'fa'),
 )
 
 _clients = {}

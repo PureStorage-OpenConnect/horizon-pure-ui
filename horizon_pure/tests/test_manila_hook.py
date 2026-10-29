@@ -267,12 +267,12 @@ class TabTests(test.TestCase):
         self.assertFalse(tab.allowed(group.request))
         self.assertEqual([admin_tabs.ShareOverviewTab],
                          [type(t) for t in group.get_tabs()])
-        with override_settings(PURE_FLASH_BLADES=[FB_CONF]):
+        with override_settings(PURE_FLASHBLADES=[FB_CONF]):
             self.assertTrue(tab.allowed(group.request))
-        with override_settings(PURE_FLASH_ARRAY_FILES=[FA_CONF]):
+        with override_settings(PURE_FLASHARRAY_FILES=[FA_CONF]):
             self.assertTrue(tab.allowed(group.request))
 
-    @override_settings(PURE_FLASH_BLADES=42)
+    @override_settings(PURE_FLASHBLADES=42)
     def test_allowed_survives_broken_settings(self):
         # The tab group evaluates allowed() once while it is built.
         with self.assertLogs('horizon_pure.manila_hook',
@@ -284,7 +284,7 @@ class TabTests(test.TestCase):
         self.assertIn("'int' object is not iterable", logs.output[0])
         self.assertIsNone(group.get_tab(SLUG))
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_tab_is_offered_but_not_preloaded(self):
         with mock.patch.object(pure_manila, 'get_share_info') as get_info:
             group = self._group(select_tab=False)
@@ -297,7 +297,7 @@ class TabTests(test.TestCase):
             group.load_tab_data()
         get_info.assert_not_called()
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_context_data(self):
         info = info_fb()
         group = self._group(project_tabs.ShareDetailTabs)
@@ -308,7 +308,7 @@ class TabTests(test.TestCase):
         get_info.assert_called_once_with(group.request, self.share)
         self.assertEqual({'share': self.share, 'info': info}, context)
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_context_data_wraps_exceptions(self):
         group = self._group()
         group.request.user = _user(True)
@@ -342,7 +342,7 @@ class TabTests(test.TestCase):
         self.assertIn('No matching object was found', html)
         self.assertNotIn('boom', html)
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_render_unconfigured(self):
         html = self._render(info_unconfigured())
         self.assertIn('alert-info', html)
@@ -350,7 +350,7 @@ class TabTests(test.TestCase):
         self.assertNotIn('alert-warning', html)
         self.assertNotIn('Share on Array', html)
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_render_not_found_admin(self):
         html = self._render(info_not_found())
         self.assertIn('alert-warning', html)
@@ -360,7 +360,7 @@ class TabTests(test.TestCase):
         self.assertIn('%s, %s' % (FS1, FS2), html)
         self.assertNotIn('Share on Array', html)
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_render_not_found_project_user_hides_error_and_candidates(self):
         # The error text names backends, arrays and objects: admin-only,
         # like the Array section.
@@ -382,7 +382,7 @@ class TabTests(test.TestCase):
         self.assertIn('alert-warning', html)
         self.assertNotIn('names tried', html)
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_render_flashblade_admin(self):
         html = self._render(info_fb())
         self.assertEqual(2, html.count('Share on Array'))
@@ -428,7 +428,7 @@ class TabTests(test.TestCase):
         self.assertNotIn('alert-', html)
         self.assertNotIn('Managed Directory', html)
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_render_flashblade_project_user_hides_array(self):
         html = self._render(info_fb(is_admin=False),
                             project_tabs.ShareDetailTabs)
@@ -444,7 +444,7 @@ class TabTests(test.TestCase):
         self.assertIn('<dd>200MB</dd>', html)
         self.assertIn('Read IOPS', html)
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_render_flashblade_missing_optional_values(self):
         fs = _fb_fs(FS1)
         fs.update({'created': None, 'nfs_rules': '', 'snapshot_count': 0})
@@ -454,7 +454,7 @@ class TabTests(test.TestCase):
         self.assertIn('<dd>0</dd>', html)
         self.assertNotIn('Nov. 14, 2023', html)
 
-    @override_settings(PURE_FLASH_ARRAY_FILES=[FA_CONF])
+    @override_settings(PURE_FLASHARRAY_FILES=[FA_CONF])
     def test_render_flasharray_admin(self):
         html = self._render(info_fa())
         self.assertEqual(1, html.count('Share on Array'))
@@ -502,7 +502,7 @@ class TabTests(test.TestCase):
         self.assertNotIn('<dt>File System</dt>', html)
         self.assertNotIn('alert-', html)
 
-    @override_settings(PURE_FLASH_ARRAY_FILES=[FA_CONF])
+    @override_settings(PURE_FLASHARRAY_FILES=[FA_CONF])
     def test_render_flasharray_project_user_hides_array(self):
         html = self._render(info_fa(is_admin=False),
                             project_tabs.ShareDetailTabs)
@@ -518,7 +518,7 @@ class TabTests(test.TestCase):
         self.assertIn('<dd>share-%s-manila</dd>' % SHARE_ID, html)
         self.assertIn('<dd>50MB</dd>', html)
 
-    @override_settings(PURE_FLASH_ARRAY_FILES=[FA_CONF])
+    @override_settings(PURE_FLASHARRAY_FILES=[FA_CONF])
     def test_render_flasharray_without_quota_rules_or_snapshots(self):
         info = info_fa(quota=False)
         info['directory'].update({'nfs_rules': [], 'exports': [],
@@ -533,8 +533,8 @@ class TabTests(test.TestCase):
 
 
 @unittest.skipIf(manila_hook is None, 'manila-ui is not installed')
-@override_settings(PURE_FLASH_BLADES=[FB_CONF],
-                   PURE_FLASH_ARRAY_FILES=[FA_CONF])
+@override_settings(PURE_FLASHBLADES=[FB_CONF],
+                   PURE_FLASHARRAY_FILES=[FA_CONF])
 class TabWithRealApiTests(test.TestCase):
     """The tab fed by the real API modules over mocked SDK clients.
 
@@ -752,7 +752,7 @@ class AdminShareDetailViewTests(manila_test.BaseAdminViewTests):
             res = self.client.get(self.url, TAB_PARAM, **extra)
         return res, get_info
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_detail_page_has_the_everpure_tab(self):
         info = info_fb(file_systems=[_fb_fs(FS1)])
         res, get_info = self._get(info)
@@ -771,7 +771,7 @@ class AdminShareDetailViewTests(manila_test.BaseAdminViewTests):
         self.assertContains(res, '>fb-lab</a>')
         self.assertContains(res, 'Share Overview')
 
-    @override_settings(PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHBLADES=[FB_CONF])
     def test_ajax_tab_load_returns_only_the_tab(self):
         res, get_info = self._get(info_fa(),
                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -813,7 +813,7 @@ class ProjectShareDetailViewTests(manila_test.TestCase):
         manila_api.share_rules_list.return_value = []
         manila_api.share_export_location_list.return_value = []
 
-    @override_settings(PURE_FLASH_ARRAY_FILES=[FA_CONF])
+    @override_settings(PURE_FLASHARRAY_FILES=[FA_CONF])
     def test_detail_page_hides_array_identity(self):
         with mock.patch.object(pure_manila, 'get_share_info',
                                return_value=info_fa(is_admin=False)) as g:

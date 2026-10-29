@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Manila-facing FlashArray Files queries (PURE_FLASH_ARRAY_FILES backends).
+"""Manila-facing FlashArray Files queries (PURE_FLASHARRAY_FILES backends).
 
 A Manila share is the managed directory ``<parent_fs>:share-<share id>-
 manila`` with an NFS policy ``share-<id>-manila-nfs`` and a quota policy
@@ -173,7 +173,7 @@ class FlashArrayFilesAPI(object):
         entry = registry.find('manila', backend_name)
         if entry is None or entry.kind != 'fa':
             LOG.debug('Backend %s is not configured in '
-                      'PURE_FLASH_ARRAY_FILES', backend_name)
+                      'PURE_FLASHARRAY_FILES', backend_name)
             return None, None, 'Not in config'
         try:
             return entry, registry.get_client(entry), None

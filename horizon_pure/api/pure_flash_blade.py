@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Manila-facing FlashBlade queries (PURE_FLASH_BLADES backends).
+"""Manila-facing FlashBlade queries (PURE_FLASHBLADES backends).
 
 Clients come from ``horizon_pure.api.registry`` and are built on first
 use. All sizes are MiB (templates render them with ``mb_float_format``),
@@ -199,7 +199,7 @@ def file_system_dict(fs, pattern=None):
 
 
 class FlashBladeAPI(object):
-    """Queries for the Manila FlashBlade backends in PURE_FLASH_BLADES."""
+    """Queries for the Manila FlashBlade backends in PURE_FLASHBLADES."""
 
     get_array_summary = staticmethod(get_array_summary)
 
@@ -213,7 +213,7 @@ class FlashBladeAPI(object):
         """(entry, client, error) for a backend; client is None on error."""
         entry = registry.find('manila', backend_name)
         if entry is None or entry.kind != 'fb':
-            LOG.debug('Backend %s is not configured in PURE_FLASH_BLADES',
+            LOG.debug('Backend %s is not configured in PURE_FLASHBLADES',
                       backend_name)
             return None, None, 'Not in config'
         try:

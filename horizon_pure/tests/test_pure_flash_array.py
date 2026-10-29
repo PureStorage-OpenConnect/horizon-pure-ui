@@ -115,7 +115,7 @@ class FakeVolume(object):
         return {'id': self.id, 'name': self.name, 'size': 10}
 
 
-@override_settings(PURE_FLASH_ARRAYS=ARRAYS)
+@override_settings(PURE_FLASHARRAYS=ARRAYS)
 class FlashArrayAPITests(test.TestCase):
 
     def setUp(self):
@@ -288,7 +288,7 @@ class FlashArrayAPITests(test.TestCase):
         self.build.side_effect = (
             lambda entry: second if entry.target == '192.0.2.11'
             else self.client)
-        with override_settings(PURE_FLASH_ARRAYS=conf):
+        with override_settings(PURE_FLASHARRAYS=conf):
             self.assertEqual(['pure-iscsi', 'pure-fc', 'pure-nvme'],
                              self.api.get_array_list())
             stats = self.api.get_total_stats()
@@ -304,7 +304,7 @@ class FlashArrayAPITests(test.TestCase):
         self.assertEqual(2, self.build.call_count)
 
     def test_get_total_stats_unconfigured(self):
-        with override_settings(PURE_FLASH_ARRAYS=[]):
+        with override_settings(PURE_FLASHARRAYS=[]):
             self.assertEqual({}, self.api.get_total_stats())
         self.build.assert_not_called()
 
@@ -405,7 +405,7 @@ class FlashArrayAPITests(test.TestCase):
         _fresh(second.get_volumes, [_volume_item()])
         _fresh(second.get_volumes_performance, [_volume_perf()])
 
-        with override_settings(PURE_FLASH_ARRAYS=conf):
+        with override_settings(PURE_FLASHARRAYS=conf):
             result = self.api.get_volume_info(FakeVolume())
 
         # First array queried once (plain + pod name), not once per backend.

@@ -6,11 +6,14 @@
 
 Version 2.1.0 extends the plugin from Cinder FlashArray backends to the
 Manila FlashBlade and FlashArray Files backends, and completes the Everpure
-rename of the user-visible text. Nothing you installed for 2.0.0 has to be
-renamed: the distribution (`horizon-pure`), the Python package
-(`horizon_pure`), the panel slug (`pure_panel`), the enabled file and every
-`PURE_*` setting name are unchanged, so an existing
-`_9999_pure_settings.py` keeps working as it is.
+rename of the user-visible text. The distribution (`horizon-pure`), the
+Python package (`horizon_pure`), the panel slug (`pure_panel`) and the
+enabled file are unchanged. The Cinder setting is renamed from
+`PURE_FLASH_ARRAYS` to `PURE_FLASHARRAYS`, matching the product name as in
+the new `PURE_FLASHBLADES` and `PURE_FLASHARRAY_FILES`. The old name is
+not read any more: rename it in `_9999_pure_settings.py` before restarting
+Horizon, otherwise no Cinder backend is configured and the FlashArray tab
+is not shown.
 
 ### Manila support
 
@@ -50,8 +53,8 @@ renamed: the distribution (`horizon-pure`), the Python package
 All new settings have defaults; an absent or empty list simply disables that
 kind of backend.
 
-- `PURE_FLASH_BLADES` and `PURE_FLASH_ARRAY_FILES`: lists of Manila backends
-  with the same shape as `PURE_FLASH_ARRAYS`. `backend_name` is the backend
+- `PURE_FLASHBLADES` and `PURE_FLASHARRAY_FILES`: lists of Manila backends
+  with the same shape as `PURE_FLASHARRAYS`. `backend_name` is the backend
   section name from `enabled_share_backends` in `manila.conf`. For FlashArray
   Files, `parent_fs` must equal the driver's `pure_cluster_id` (default
   `openstack`).
@@ -113,8 +116,8 @@ for the full annotated example.
    `sudo pip install --upgrade horizon_pure-2.1.0-py3-none-any.whl`.
    Add `[manila]` (`".[manila]"` / `"horizon-pure[manila]"`) if manila-ui is
    not already installed and you want the share tab.
-2. Keep your existing `_9999_pure_settings.py`; add `PURE_FLASH_BLADES`
-   and/or `PURE_FLASH_ARRAY_FILES` entries for your Manila backends, and the
+2. Keep your existing `_9999_pure_settings.py`; add `PURE_FLASHBLADES`
+   and/or `PURE_FLASHARRAY_FILES` entries for your Manila backends, and the
    optional settings if you need them.
 3. The enabled file `_9999_pure_panel.py` is functionally unchanged; copying
    it again is harmless.

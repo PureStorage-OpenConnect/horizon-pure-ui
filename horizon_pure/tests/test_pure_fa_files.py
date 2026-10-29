@@ -183,7 +183,7 @@ def make_client(name='fa-lab'):
     return client
 
 
-@override_settings(PURE_FLASH_ARRAY_FILES=FILES)
+@override_settings(PURE_FLASHARRAY_FILES=FILES)
 class FlashArrayFilesAPITests(test.TestCase):
 
     def setUp(self):
@@ -295,7 +295,7 @@ class FlashArrayFilesAPITests(test.TestCase):
         self.assertEqual('nope', info.backend_id)
         self.assertEqual('openstack', info.parent_fs)
         # Cinder and FlashBlade backends are not FlashArray Files backends.
-        with override_settings(PURE_FLASH_BLADES=[
+        with override_settings(PURE_FLASHBLADES=[
                 {'mgmt_ip': '192.0.2.20', 'api_token': 'tok',
                  'backend_name': 'flashblade'}]):
             self.assertEqual('Error: Not in config',
@@ -318,7 +318,7 @@ class FlashArrayFilesAPITests(test.TestCase):
         self.build.side_effect = (
             lambda entry: second if entry.target == '192.0.2.11'
             else self.client)
-        with override_settings(PURE_FLASH_ARRAY_FILES=conf):
+        with override_settings(PURE_FLASHARRAY_FILES=conf):
             stats = self.api.get_total_stats()
 
         self.assertEqual({'total_used': 20.0, 'total_available': 2000.0,
@@ -328,7 +328,7 @@ class FlashArrayFilesAPITests(test.TestCase):
         self.assertEqual(2, self.build.call_count)
 
     def test_get_total_stats_unconfigured(self):
-        with override_settings(PURE_FLASH_ARRAY_FILES=[]):
+        with override_settings(PURE_FLASHARRAY_FILES=[]):
             self.assertEqual({}, self.api.get_total_stats())
         self.build.assert_not_called()
 
@@ -356,7 +356,7 @@ class FlashArrayFilesAPITests(test.TestCase):
         self.assertEqual(SHARE_ID2, result[1]['share_id'])
         self.assertEqual(5.0, result[1]['used'])
 
-    @override_settings(PURE_FLASH_ARRAY_FILES=[
+    @override_settings(PURE_FLASHARRAY_FILES=[
         dict(FILES[0], parent_fs='tenant-fs')],
         PURE_MANILA_SHARE_NAME_TEMPLATE='manila-%s')
     def test_list_manila_directories_custom_parent_fs_ignores_template(self):
@@ -444,7 +444,7 @@ class FlashArrayFilesAPITests(test.TestCase):
         self.assertEqual('openstack', info['parent_fs'])
         self.assertEqual('flasharray-files', info['backend_name'])
 
-    @override_settings(PURE_FLASH_ARRAY_FILES=[
+    @override_settings(PURE_FLASHARRAY_FILES=[
         dict(FILES[0], parent_fs='tenant-fs')])
     def test_get_directory_info_custom_parent_fs(self):
         name = 'tenant-fs:' + SHORT

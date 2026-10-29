@@ -176,8 +176,8 @@ class NamingTests(test.TestCase):
         self.assertIsNone(pure_manila.to_datetime('soon'))
 
 
-@override_settings(PURE_FLASH_BLADES=[FB_CONF],
-                   PURE_FLASH_ARRAY_FILES=[FA_CONF])
+@override_settings(PURE_FLASHBLADES=[FB_CONF],
+                   PURE_FLASHARRAY_FILES=[FA_CONF])
 class ShareInfoTests(test.TestCase):
 
     def setUp(self):
@@ -209,8 +209,8 @@ class ShareInfoTests(test.TestCase):
         return [call[0][0].kind for call in self.build.call_args_list]
 
     def test_unconfigured(self):
-        with override_settings(PURE_FLASH_BLADES=[],
-                               PURE_FLASH_ARRAY_FILES=[]):
+        with override_settings(PURE_FLASHBLADES=[],
+                               PURE_FLASHARRAY_FILES=[]):
             info = pure_manila.get_share_info(_request(admin=True),
                                               _share(host='h@flashblade#p'))
         self.assertFalse(info['configured'])

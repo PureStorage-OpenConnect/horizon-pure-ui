@@ -55,17 +55,17 @@ class EntriesTests(RegistryTestCase):
 
     def test_absent_settings(self):
         with override_settings():
-            for name in ('PURE_FLASH_ARRAYS', 'PURE_FLASH_BLADES',
-                         'PURE_FLASH_ARRAY_FILES'):
+            for name in ('PURE_FLASHARRAYS', 'PURE_FLASHBLADES',
+                         'PURE_FLASHARRAY_FILES'):
                 if hasattr(settings, name):
                     delattr(settings, name)
             self.assertEqual([], registry.entries())
             self.assertEqual([], registry.entries(service='manila'))
             self.assertIsNone(registry.find('cinder', 'pure-iscsi'))
 
-    @override_settings(PURE_FLASH_ARRAYS=[FA_CONF],
-                       PURE_FLASH_BLADES=[FB_CONF],
-                       PURE_FLASH_ARRAY_FILES=[FAF_CONF])
+    @override_settings(PURE_FLASHARRAYS=[FA_CONF],
+                       PURE_FLASHBLADES=[FB_CONF],
+                       PURE_FLASHARRAY_FILES=[FAF_CONF])
     def test_parses_all_three_lists(self):
         found = registry.entries()
         self.assertEqual([('cinder', 'pure-iscsi'),
@@ -96,9 +96,9 @@ class EntriesTests(RegistryTestCase):
         # Same array as the Cinder entry: shares one client.
         self.assertEqual(fa.cache_key, faf.cache_key)
 
-    @override_settings(PURE_FLASH_ARRAYS=[FA_CONF],
-                       PURE_FLASH_BLADES=[FB_CONF],
-                       PURE_FLASH_ARRAY_FILES=[FAF_CONF])
+    @override_settings(PURE_FLASHARRAYS=[FA_CONF],
+                       PURE_FLASHBLADES=[FB_CONF],
+                       PURE_FLASHARRAY_FILES=[FAF_CONF])
     def test_filters(self):
         self.assertEqual(['flashblade', 'flasharray-files'],
                          [e.backend_name for e in
@@ -110,13 +110,13 @@ class EntriesTests(RegistryTestCase):
                           registry.entries(service='manila', kind='fa')])
         self.assertEqual([], registry.entries(service='cinder', kind='fb'))
 
-    @override_settings(PURE_FLASH_ARRAY_FILES=[
+    @override_settings(PURE_FLASHARRAY_FILES=[
         dict(FAF_CONF, parent_fs='tenant-fs')])
     def test_parent_fs_explicit(self):
         entry = registry.find('manila', 'flasharray-files')
         self.assertEqual('tenant-fs', entry.parent_fs)
 
-    @override_settings(PURE_FLASH_ARRAYS=[
+    @override_settings(PURE_FLASHARRAYS=[
         {'api_token': 'x'},                       # no identity at all
         {'san_ip': '192.0.2.99'},                 # no backend_name
         {'backend_name': 'no-ip', 'api_token': 'x'},
@@ -138,8 +138,8 @@ class EntriesTests(RegistryTestCase):
         self.assertIn('be', text)
         self.assertIn('192.0.2.10', text)
 
-    @override_settings(PURE_FLASH_ARRAYS=[FA_CONF],
-                       PURE_FLASH_BLADES=[FB_CONF])
+    @override_settings(PURE_FLASHARRAYS=[FA_CONF],
+                       PURE_FLASHBLADES=[FB_CONF])
     def test_find(self):
         self.assertEqual(('cinder', 'pure-iscsi'),
                          registry.find('cinder', 'pure-iscsi').key)

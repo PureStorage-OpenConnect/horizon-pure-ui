@@ -140,7 +140,7 @@ def make_client(name='fb-lab'):
     return client
 
 
-@override_settings(PURE_FLASH_BLADES=BLADES)
+@override_settings(PURE_FLASHBLADES=BLADES)
 class FlashBladeAPITests(test.TestCase):
 
     def setUp(self):
@@ -277,7 +277,7 @@ class FlashBladeAPITests(test.TestCase):
         self.assertEqual('nope', info.backend_id)
         self.build.assert_not_called()
         # A FlashArray Files backend name is not a FlashBlade backend.
-        with override_settings(PURE_FLASH_ARRAY_FILES=[
+        with override_settings(PURE_FLASHARRAY_FILES=[
                 {'san_ip': '192.0.2.10', 'api_token': 'tok',
                  'backend_name': 'flasharray-files'}]):
             info = self.api.get_array_info('flasharray-files')
@@ -299,7 +299,7 @@ class FlashBladeAPITests(test.TestCase):
         self.build.side_effect = (
             lambda entry: second if entry.target == '192.0.2.21'
             else self.client)
-        with override_settings(PURE_FLASH_BLADES=conf):
+        with override_settings(PURE_FLASHBLADES=conf):
             self.assertEqual(['flashblade', 'flashblade-two', 'flashblade-b'],
                              self.api.get_backend_list())
             stats = self.api.get_total_stats()
@@ -312,7 +312,7 @@ class FlashBladeAPITests(test.TestCase):
         self.assertEqual(2, self.build.call_count)
 
     def test_get_total_stats_unconfigured(self):
-        with override_settings(PURE_FLASH_BLADES=[]):
+        with override_settings(PURE_FLASHBLADES=[]):
             self.assertEqual({}, self.api.get_total_stats())
         self.build.assert_not_called()
 

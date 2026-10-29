@@ -23,7 +23,8 @@
 # kind; the matching panel tab is then not shown.
 
 # FlashArrays used by Cinder volume backends.
-PURE_FLASH_ARRAYS = [
+# Called PURE_FLASH_ARRAYS in 2.0.0; the old name is not read any more.
+PURE_FLASHARRAYS = [
     {
         # Management VIP or FQDN of the FlashArray; the same value as
         # san_ip in the cinder.conf backend section.
@@ -48,7 +49,7 @@ PURE_FLASH_ARRAYS = [
 ]
 
 # FlashBlades used by Manila share backends.
-PURE_FLASH_BLADES = [
+PURE_FLASHBLADES = [
     {
         # Management VIP or FQDN of the FlashBlade; the same value as
         # flashblade_mgmt_vip in the manila.conf backend section.
@@ -61,14 +62,14 @@ PURE_FLASH_BLADES = [
         # manila.conf.
         'backend_name': 'flashblade',
 
-        # Optional, as for PURE_FLASH_ARRAYS.
+        # Optional, as for PURE_FLASHARRAYS.
         # 'verify_ssl': False,
         # 'ca_cert': None,
     },
 ]
 
 # FlashArrays used by Manila share backends (FlashArray Files driver).
-PURE_FLASH_ARRAY_FILES = [
+PURE_FLASHARRAY_FILES = [
     {
         # Management VIP or FQDN of the FlashArray; the same value as
         # flasharray_mgmt_vip in the manila.conf backend section.
@@ -86,7 +87,7 @@ PURE_FLASH_ARRAY_FILES = [
         # (driver default: openstack).
         'parent_fs': 'openstack',
 
-        # Optional, as for PURE_FLASH_ARRAYS.
+        # Optional, as for PURE_FLASHARRAYS.
         # 'verify_ssl': False,
         # 'ca_cert': None,
     },

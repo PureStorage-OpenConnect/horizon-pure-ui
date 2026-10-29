@@ -53,7 +53,7 @@ INSTALLED_APPS = list(dict.fromkeys(INSTALLED_APPS))
 
 # Array settings consumed by the plugin. Tests patch the API layer, so no
 # real array is ever contacted; the entries only need to parse.
-PURE_FLASH_ARRAYS = [
+PURE_FLASHARRAYS = [
     {'san_ip': '192.0.2.10', 'api_token': 'test-token',
      'backend_name': 'pure-iscsi'},
 ]

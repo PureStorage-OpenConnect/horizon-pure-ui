@@ -118,20 +118,20 @@ REST API tokens in, and keep the file readable only by the Horizon service
 account::
 
     # Cinder FlashArray backends
-    PURE_FLASH_ARRAYS = [
+    PURE_FLASHARRAYS = [
         {'san_ip': '10.0.0.10', 'api_token': 'REPLACE-WITH-API-TOKEN',
          'backend_name': 'pure-iscsi',          # cinder.conf enabled_backends section
          'verify_ssl': False,                   # optional, default False
          'ca_cert': '/etc/ssl/certs/pure.pem'}, # optional, implies verify
     ]
     # Manila FlashBlade backends
-    PURE_FLASH_BLADES = [
+    PURE_FLASHBLADES = [
         {'mgmt_ip': '10.0.0.20', 'api_token': 'REPLACE-WITH-API-TOKEN',
          'backend_name': 'flashblade',          # manila.conf backend section name
          'verify_ssl': False, 'ca_cert': None},
     ]
     # Manila FlashArray Files backends
-    PURE_FLASH_ARRAY_FILES = [
+    PURE_FLASHARRAY_FILES = [
         {'san_ip': '10.0.0.10', 'api_token': 'REPLACE-WITH-API-TOKEN',
          'backend_name': 'flasharray-files',    # manila.conf backend section name
          'parent_fs': 'openstack',              # must equal the driver's pure_cluster_id
@@ -140,6 +140,9 @@ account::
     PURE_MANILA_SHARE_NAME_TEMPLATE = 'share-%s'   # mirror manila.conf share_name_template
     PURE_API_TIMEOUT = 10        # seconds per REST call
     PURE_API_RETRIES = 1
+
+``PURE_FLASHARRAYS`` was called ``PURE_FLASH_ARRAYS`` in 2.0.0; the old
+name is not read any more, so rename it when upgrading.
 
 You may repeat the entry dictionaries for as many backends as needed. The
 same physical array may appear in more than one list (for example one Cinder
@@ -188,7 +191,7 @@ PURE_API_TIMEOUT / PURE_API_RETRIES
   reason) and is not contacted again for 60 seconds, so one dead array does
   not stall every page load.
 
-Cinder FlashArray backends (PURE_FLASH_ARRAYS)
+Cinder FlashArray backends (PURE_FLASHARRAYS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 One entry per FlashArray Cinder backend. To find the names, look at the
@@ -204,7 +207,7 @@ output of ``cinder service-list``::
 The "Host" column of the cinder-volume rows is ``<host>@<backend_name>``;
 the part after ``@`` is the ``backend_name`` to configure.
 
-Manila FlashBlade backends (PURE_FLASH_BLADES)
+Manila FlashBlade backends (PURE_FLASHBLADES)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 One entry per FlashBlade Manila backend. ``manila service-list`` shows the
@@ -233,7 +236,7 @@ you changed ``share_name_template`` in ``manila.conf``, set
 ``PURE_MANILA_SHARE_NAME_TEMPLATE`` to the same value; otherwise leave it at
 the default ``share-%s``.
 
-Manila FlashArray Files backends (PURE_FLASH_ARRAY_FILES)
+Manila FlashArray Files backends (PURE_FLASHARRAY_FILES)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 One entry per FlashArray that serves Manila shares through the Everpure
